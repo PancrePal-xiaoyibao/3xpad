@@ -1,0 +1,54 @@
+[FastGPT]
+enable = true
+# FastGPT API配置
+api-key = "openapi-***" # 替换为你的Fastgpt API密钥
+base-url = "https://**/api" # FastGPT API基础URL
+app-id = "" # 替换为您的FastGPT应用ID,可以不填
+
+# 命令配置
+commands = ["bb", "xyb", "Xyb"] # 触发插件的命令，可以改为“小萌宝，xmb等等”
+command-tip = """-----小X宝社区-肿瘤及罕见病患者AI开源公益社区使用提示-----
+💬知识库问答指令：
+@机器人 bb RMC6236是什么？
+例如：@机器人 bb 胰腺肿瘤出现黄疸怎么处置?
+"""
+
+# 图片分析命令配置
+image-commands = ["图片分析", "报告分析", "分析报告", "分析图片", "请分析"] #可以自定义触发词
+image-prompt = "你是肿瘤报告分析专家，分析图片内容，给出重点提示和建议。"
+
+image-command-tip = """-----小X宝社区AI助手图片分析-----
+🖼️图片分析指令：
+1. 私聊：直接发送图片
+2. 群聊：发送图片并附带触发词，例如 "”分析报告“，”分析图片“等
+"""
+
+# 功能配置
+detail = false # 是否返回详细信息
+max-tokens = 3000 # 最大Token数
+http-proxy = "" # HTTP代理设置，如果需要
+
+# 图片存储配置
+storage-type = "s3" # 存储类型: "local" 或 "s3" #local代码没有开发，就s3挺好。
+
+# 本地存储配置
+image-server-url = "" # 文件服务器基础URL，留空则自动检测
+image-server-port = 9091 # 文件服务器端口
+public-ip = "" # 公网IP或域名，用于远程访问
+image-tmp-dir = "tmp/fastgpt_images" # 图片临时存储目录
+image-expire-time = 300 # 图片过期时间（秒）
+cleanup-interval = 300 # 清理间隔（秒）
+
+# S3存储配置
+s3-access-key = "**" # S3访问密钥
+s3-secret-key = "**" # S3密钥
+s3-endpoint = "**.cloud.sealos.top" # S3外部端点
+s3-bucket = "accesskey内容-桶名" # S3存储桶名称，注意sealos必须以这个格式，其它桶自己测试
+s3-secure = true # 是否使用HTTPS
+s3-enable-local-backup = true # 是否启用本地备份
+use-minio-client = false # 是否使用MinIO专用客户端
+
+# 积分系统 #代码中都注释掉了，我们不会向病友收费使用，保留这个是尊重原有开发者及方便其它开源使用
+price = 0 # 每次使用消耗的积分
+admin_ignore = true # 管理员是否免费使用
+whitelist_ignore = true # 白名单用户是否免费使用
