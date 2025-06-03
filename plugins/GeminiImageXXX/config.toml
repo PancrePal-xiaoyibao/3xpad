@@ -1,0 +1,57 @@
+[basic]
+# 是否启用插件
+enable = true
+# Gemini API Key
+gemini_api_key = ""
+# 使用的模型
+model = "gemini-2.0-flash-exp-image-generation"
+# 图片保存路径 (相对于插件目录)
+save_path = "temp_images"
+# 会话过期时间 (秒)
+conversation_expire_seconds = 180
+# 最大会话消息数
+max_conversation_messages = 10
+# 参考图等待超时时间 (秒)
+reference_image_wait_timeout = 180
+# 融图等待超时时间 (秒)
+merge_image_wait_timeout = 180
+# 反推图片等待超时时间 (秒)
+reverse_image_wait_timeout = 180
+# 识图等待超时时间 (秒)
+analysis_image_wait_timeout = 180
+# 追问超时时间 (秒)
+follow_up_timeout = 180
+# 图片缓存超时时间 (秒)
+image_cache_timeout = 300
+
+[commands]
+generate = ["g生成", "g画图", "g画"]
+edit = ["g编辑图片", "g改图"]
+reference_edit = ["g参考图", "g编辑参考图"]
+merge = ["g融图"]
+image_reverse = ["g反推提示", "g反推"]
+image_analysis = ["g解析图片", "g识图"]
+follow_up = ["g追问"]
+exit_session = ["g结束对话", "g结束"]
+translate_on = ["g开启翻译", "g启用翻译"]
+translate_off = ["g关闭翻译", "g禁用翻译"]
+
+[points]
+enable_points = false
+generate_image_cost = 10
+edit_image_cost = 15
+
+[proxy]
+enable_proxy = false
+proxy_url = ""
+use_proxy_service = true
+proxy_service_url = ""
+
+[translate]
+enable_translate = true
+translate_api_base = "https://open.bigmodel.cn/api/paas/v4"
+translate_api_key = ""
+translate_model = "glm-4-flash"
+
+[reverse]
+reverse_prompt = "请详细分析这张图片的内容，包括主要对象、场景、风格、颜色等关键特征。如果图片包含文字，也请提取出来。请用简洁清晰的中文进行描述。输出内容分为两部分:1.结构化的完整中文句子，字数控制在300个汉字以内;2.提炼简化过后的英文版画面描述词，以便用户能够在AI绘画模型中复现类似效果，以\"Image Prompt: \"开头，字数控制在100个单词以内" 

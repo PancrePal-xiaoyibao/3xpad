@@ -1,0 +1,32 @@
+# TVSSpider 插件配置文件
+
+# 全局设置
+enable = true
+whitelist_groups = [""]  # 例如 ["", "87654321@chatroom"]
+
+# 基本设置
+[basic]
+# 网站基础URL
+base_url = "https://www.tvs1.vip"
+# 命令前缀
+command_prefix = "TVS"
+# 命令正则表达式
+command_regex = "^TVS\\s+(.+)$"
+
+# 显示设置
+[display]
+# 最大显示结果数
+max_results = 10
+# 是否使用emoji装饰
+enable_emoji = true
+
+# 请求设置
+[request]
+# 请求超时时间(秒)
+timeout = 50
+# 重试次数
+retry_times = 2
+
+# 用户代理设置
+[user_agent]
+ua = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36" 

@@ -1,0 +1,15 @@
+[GetWeather]
+enable = true
+command-format = """⚙️获取天气：
+天气 城市名
+天气城市名
+城市名天气
+城市名 天气"""
+api-key = """-----BEGIN PRIVATE KEY-----
+*+************
+-----END PRIVATE KEY-----"""
+api-host = "https://*.re.qweatherapi.com"
+jwt-kid = "*"  # 从控制台获取的凭据ID
+jwt-sub = "*"  # 从控制台获取的项目ID
+
+# 申请链接： https://dev.qweather.com/ 

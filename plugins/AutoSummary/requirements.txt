@@ -1,0 +1,4 @@
+# AutoSummary依赖
+beautifulsoup4>=4.9.3  # 用于解析HTML提取微信公众号文章内容
+requests>=2.25.1  # 用于发送HTTP请求获取网页内容
+

@@ -1,4 +1,3 @@
-# --- START OF FILE FastGPT/main.py ---
 from typing import Optional, List, Dict, Any # 添加 Dict, Any
 import asyncio
 import base64 # 确保 base64 被导入
@@ -46,7 +45,7 @@ ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 class FastGPT(PluginBase):
     description = "FastGPT知识库问答插件"
-    author = "老夏的金库"
+    author = "samqin-xiaoyibao社区贡献"
     version = "1.3.0" # 版本号更新，体现新功能
     is_ai_platform = True
 
@@ -345,10 +344,10 @@ class FastGPT(PluginBase):
             if not query:
                 logger.trace("Private chat message is empty, skipping.")
                 return True
+        # if not await self._check_point(bot, message):
+        #     logger.info(f"User {sender_wxid} has insufficient points for FastGPT text query.")
+        #     return False
 
-        if not await self._check_point(bot, message):
-            logger.info(f"User {sender_wxid} has insufficient points for FastGPT text query.")
-            return False
 
         chat_id = f"{sender_wxid}_{self.app_id if self.app_id else 'default'}_text"
         logger.debug(f"Generated chatId for FastGPT text query: {chat_id}")
@@ -460,9 +459,9 @@ class FastGPT(PluginBase):
         # --- 私聊图片处理：直接分析 (维持原有逻辑) ---
         else: # not is_group (私聊)
             logger.info(f"MsgId={msg_id}: Private image received. Proceeding with direct analysis for user {sender_wxid}.")
-            if not await self._check_point(bot, message):
-                logger.info(f"MsgId={msg_id}: User {sender_wxid} has insufficient points for FastGPT image analysis.")
-                return False
+            # if not await self._check_point(bot, message):
+            #     logger.info(f"MsgId={msg_id}: User {sender_wxid} has insufficient points for FastGPT image analysis.")
+            #     return False
 
             try:
                 image_data = await self._extract_image_data_from_message(bot, message)
@@ -1096,7 +1095,7 @@ class FastGPT(PluginBase):
                 logger.info(f"Attempting to install '{install_target}' via pip...")
                 try:
                     # 使用 subprocess.run 获取更详细的输出（如果需要）
-                    result = subprocess.run([sys.executable, "-m", "pip", "install", install_target],
+                    result = subprocess.run([sys.executable, "-m", "pip", "install", "-i", "https://pypi.tuna.tsinghua.edu.cn/simple", install_target],
                                             capture_output=True, text=True, check=False) # check=False 手动检查
                     if result.returncode == 0:
                         logger.success(f"Successfully installed '{install_target}'.")
@@ -1126,7 +1125,7 @@ class FastGPT(PluginBase):
                     if pip_command_available[0]:
                         logger.info(f"Installing dependencies from requirements.txt: {requirements}")
                         # 安装 requirements.txt 中的所有包
-                        result_req = subprocess.run([sys.executable, "-m", "pip", "install", *requirements],
+                        result_req = subprocess.run([sys.executable, "-m", "pip", "install", "-i", "https://pypi.tuna.tsinghua.edu.cn/simple", *requirements],
                                                     capture_output=True, text=True, check=False)
                         if result_req.returncode == 0:
                             logger.success("Successfully installed dependencies from requirements.txt.")
@@ -1278,4 +1277,3 @@ class FastGPT(PluginBase):
             logger.info(f"Extracted {len(image_urls)} potential image URLs from text: {image_urls}")
         return image_urls
 
-# --- END OF FILE FastGPT/main.py ---

@@ -20,10 +20,10 @@ RUN apt-get update \
     && cd ${BUILD_PREFIX} \
     && cp config-template.json config.json \
     && /usr/local/bin/python -m pip install --no-cache --upgrade pip \
-    && pip install --no-cache -r requirements.txt \
-    && pip install --no-cache -r requirements-optional.txt \
-    && pip install --no-cache -r plugins/jina_sum/requirements.txt \
-    && pip install --no-cache azure-cognitiveservices-speech \
+    && pip install -i https://pypi.tuna.tsinghua.edu.cn/simple --no-cache -r requirements.txt \
+    && pip install -i https://pypi.tuna.tsinghua.edu.cn/simple --no-cache -r requirements-optional.txt \
+    && pip install -i https://pypi.tuna.tsinghua.edu.cn/simple --no-cache -r plugins/jina_sum/requirements.txt \
+    && pip install -i https://pypi.tuna.tsinghua.edu.cn/simple --no-cache azure-cognitiveservices-speech \
     # 清理编译工具和缓存
     && apt-get remove -y gcc g++ make \
     && apt-get autoremove -y \

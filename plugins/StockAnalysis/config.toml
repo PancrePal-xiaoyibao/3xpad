@@ -1,0 +1,15 @@
+[StockAnalysis]
+enable = true
+commands = ["分析股票", "股票分析", "analyze"]
+
+[StockAnalysis.Settings]
+# 可选的其他设置
+default_market = ""
+data_cache_days = 30
+
+[StockAnalysis.Dify]
+# Dify API 配置
+enable = true
+api-key = "您的 Dify API Key"  # 请替换为实际的 API Key
+base-url = "您的 Dify API URL"  # 请替换为实际的 API URL
+http-proxy = ""  # 如果需要代理，在这里配置

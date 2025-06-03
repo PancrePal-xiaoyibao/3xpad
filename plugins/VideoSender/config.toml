@@ -1,0 +1,25 @@
+[VideoSender]
+enable = true
+commands = ["随机视频", "视频目录"]
+ffmpeg_path = "/usr/bin/ffmpeg"
+
+[[VideoSender.video_sources]]
+name = "视频"
+url = "https://api.317ak.com/API/sp/lbll.php"
+
+[[VideoSender.video_sources]]
+name = "视频2"
+url = "http://api.yujn.cn/api/zzxjj.php"
+
+[[VideoSender.video_sources]]
+name = "视频3"
+url = "http://api.yujn.cn/api/xjj.php"
+
+[[VideoSender.video_sources]]
+name = "视频4"
+url = " http://api.yujn.cn/api/heisis.php"
+
+[[VideoSender.video_sources]]
+name = "视频5"
+url = " http://api.yujn.cn/api/baisis.php"
+

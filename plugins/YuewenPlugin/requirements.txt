@@ -1,0 +1,6 @@
+loguru
+requests
+Pillow
+aiohttp
+toml
+tomli 

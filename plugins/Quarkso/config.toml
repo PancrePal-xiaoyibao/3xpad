@@ -1,0 +1,13 @@
+[Quarkso]
+enable = true
+command = ["夸克搜索", "百度云搜索"]
+commandAll = [] # 全网搜索关键词，为空表示不开启全网搜
+command-format = """
+搜索指令：
+夸克搜索+资源名称
+百度云搜索+资源名称"""
+
+price = 0 # 用一次扣积分，如果0则不扣
+admin_ignore = false # admin是否忽略扣除
+whitelist_ignore = false # 白名单是否忽略扣除
+default_type = "QUARK" # 默认搜索类型，可选QUARK或BDY 

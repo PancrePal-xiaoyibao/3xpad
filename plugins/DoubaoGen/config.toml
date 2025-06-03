@@ -1,0 +1,44 @@
+[Doubao]
+# 是否启用插件
+enable = true
+
+# 豆包API配置
+conversation_id = "7396522675500598835"  # 必需
+cookie = "store-region=cn-sh; store-region-src=uid; _ga=GA1.1.2145498449.1740835433; d_ticket=074c3ede2a8a2328fa59168c4e0cb8dd80da4; n_mh=sH-s8rx3Es7JMAew4HjfAtR2A2acRElXQZ0TWCfaNp8; uid_tt=be79fda3ed90d7753ce26bfa9401fa7f; uid_tt_ss=be79fda3ed90d7753ce26bfa9401fa7f; sid_tt=2c886d0c79a437b32323e48015d3f331; sessionid=2c886d0c79a437b32323e48015d3f331; sessionid_ss=2c886d0c79a437b32323e48015d3f331; is_staff_user=false; gd_random=eyJtYXRjaCI6dHJ1ZSwicGVyY2VudCI6MC4xMjA3MzY3MzM5ODA3MzQxNX0=.3BROQVVhHqsFsNK+Dcb2J2FDosHdyti2qklsb/BJS/s=; hook_slardar_session_id=2025051718432436144B0022C5DCE98665; i18next=zh; flow_ssr_sidebar_expand=1; sid_guard=2c886d0c79a437b32323e48015d3f331%7C1747478608%7C5184000%7CWed%2C+16-Jul-2025+10%3A43%3A28+GMT; sid_ucp_v1=1.0.0-KGY3ZWU2YWIxMDdlODdkYmZlMzJlYTUyODJlZDc4YjQyNTlmYzk1OTEKIAiU16CD-M3aAhDQ0KHBBhjw6CMgDDCajeCvBjgCQPEHGgJsZiIgMmM4ODZkMGM3OWE0MzdiMzIzMjNlNDgwMTVkM2YzMzE; ssid_ucp_v1=1.0.0-KGY3ZWU2YWIxMDdlODdkYmZlMzJlYTUyODJlZDc4YjQyNTlmYzk1OTEKIAiU16CD-M3aAhDQ0KHBBhjw6CMgDDCajeCvBjgCQPEHGgJsZiIgMmM4ODZkMGM3OWE0MzdiMzIzMjNlNDgwMTVkM2YzMzE; passport_fe_beating_status=true; _ga_G8EP5CG8VZ=GS2.1.s1747609692$o4$g0$t1747609692$j0$l0$h0; ttwid=1%7CnYptpP8xpUl9nGsyOmWfZdh7MPn--TMV1HByMcLy1qM%7C1747609693%7C0359866d02792640a3025155ea4a8e61b242b82bc6f536255cac054c2895cbe5; odin_tt=14a1642853288799bff4b0f602827b5ad6d3ad3ed3588db0b6dbb1be8288e9a8051fec7664309aa3624700e2e2fe11aa35b3cb9f94006e2a34714ff0550fc5e689fb78b029fbeae915f7205bd940fe04; msToken=uhYBUeVdDm9q0qdmv59nHordyhnDnSwAYqMyewK0Opl5RYEF4_XiqH2YXAAfYza5fHejPrdCN0pcJ2dcVpNLILRlsn7agZZYcPCG7LB27oaIEAfGTpFLJg62LUCEkbz_EhUIqv7fQEA=; tt_scid=Y6PD0S8I.72dJ7fwFKJEyxJ6cZFrxO1ZwIlMx3D8YJEjfIHA0LDuA.n52BvPoyIueaed" # 必需
+
+# 命令触发配置
+# 只有以下命令开头的消息才会触发豆包能力
+commands = [
+    "#豆包",
+    "#豆",
+    "#doubao",
+    "/豆包",
+    "/db",
+    "/doubao",
+    "豆包",
+    "doubao",
+    "@豆包",
+    "@db",
+    "@doubao",
+    "豆",
+    "db"
+]
+
+# 聊天配置
+private_chat = true  # 是否允许私聊
+group_chat = true   # 是否允许群聊
+admin_only = false   # 是否仅管理员可用
+bot_wxid = ""  # 修改为实际被@的wxid,机器人wxid
+daily_limit = 20    # 每人每日对话次数限制
+
+# 会话模式配置
+session_timeout = 30  # 会话超时时间（秒），默认30秒
+
+# 引用消息功能配置
+enable_quote = true  # 是否启用引用消息回复功能，设为false可避免与元宝的引用功能冲突
+private_quote = true  # 是否允许在私聊中响应引用消息
+group_quote = true   # 是否允许在群聊中响应引用消息
+quote_require_at = true  # 群聊中引用消息是否需要同时@机器人才响应
+
+# 管理员列表
+admin_list = [] 

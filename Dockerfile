@@ -41,8 +41,8 @@ COPY requirements.txt .
 
 # 升级pip并安装Python依赖
 RUN pip install --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt && \
-    pip install --no-cache-dir websockets httpx
+    pip install -i https://pypi.tuna.tsinghua.edu.cn/simple --no-cache-dir -r requirements.txt && \
+    pip install -i https://pypi.tuna.tsinghua.edu.cn/simple --no-cache-dir websockets httpx
 
 # 复制应用代码
 COPY . .

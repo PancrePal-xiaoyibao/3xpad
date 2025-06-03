@@ -1,0 +1,6 @@
+[ResourceSearch]
+enable = true
+api_url = "https://pan.hggdh.com"
+timeout = 120
+search_keywords = ["搜剧", "搜", "全网搜", "搜资源"]
+max_results = 5

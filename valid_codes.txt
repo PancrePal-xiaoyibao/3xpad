@@ -1,0 +1,643 @@
+有效的优惠码列表:
+优惠码: 000GNEHET7YK
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=000GNEHET7YK",
+  "content_length": 61111,
+  "message": "邀请码有效"
+}
+--------------------------------------------------
+优惠码: 00F5GPLLAVEF
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=00F5GPLLAVEF",
+  "content_length": 61111,
+  "message": "邀请码有效"
+}
+--------------------------------------------------
+优惠码: 00WCNVEDL8SY
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=00WCNVEDL8SY",
+  "content_length": 61111,
+  "message": "邀请码有效"
+}
+--------------------------------------------------
+优惠码: 02O002KNKZ
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=02O002KNKZ",
+  "content_length": 61111,
+  "message": "邀请码有效"
+}
+--------------------------------------------------
+优惠码: 02QG9UPNG77B
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=02QG9UPNG77B",
+  "content_length": 61111,
+  "message": "邀请码有效"
+}
+--------------------------------------------------
+优惠码: 02V74CZ9CIKT
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=02V74CZ9CIKT",
+  "content_length": 61111,
+  "message": "邀请码有效"
+}
+--------------------------------------------------
+优惠码: 03BMB9R2C2U6
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=03BMB9R2C2U6",
+  "content_length": 61111,
+  "message": "邀请码有效"
+}
+--------------------------------------------------
+优惠码: 04M7WJC1Z7J
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=04M7WJC1Z7J",
+  "content_length": 61111,
+  "message": "邀请码有效"
+}
+--------------------------------------------------
+优惠码: 04SYSMYIBUFE
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=04SYSMYIBUFE",
+  "content_length": 61111,
+  "message": "邀请码有效"
+}
+--------------------------------------------------
+优惠码: 05EZKIOG3GNS
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=05EZKIOG3GNS",
+  "content_length": 61111,
+  "message": "邀请码有效"
+}
+--------------------------------------------------
+优惠码: 0628VESMU4Y
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0628VESMU4Y",
+  "content_length": 61111,
+  "message": "邀请码有效"
+}
+--------------------------------------------------
+优惠码: 06WJ7NSUDHA
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=06WJ7NSUDHA",
+  "content_length": 61111,
+  "message": "邀请码有效"
+}
+--------------------------------------------------
+优惠码: 07DCZ45XIVJQ
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=07DCZ45XIVJQ",
+  "content_length": 61111,
+  "message": "邀请码有效"
+}
+--------------------------------------------------
+优惠码: 0ACFOSDVO9IF
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0ACFOSDVO9IF",
+  "content_length": 61111,
+  "message": "邀请码有效"
+}
+--------------------------------------------------
+优惠码: 0AZALWVVLIS
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0AZALWVVLIS",
+  "content_length": 61111,
+  "message": "邀请码有效"
+}
+--------------------------------------------------
+优惠码: 0B3YE2QQPIOH
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0B3YE2QQPIOH",
+  "content_length": 61111,
+  "message": "邀请码有效"
+}
+--------------------------------------------------
+优惠码: 0BNUZWSEFZ6Y
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0BNUZWSEFZ6Y",
+  "content_length": 61111,
+  "message": "邀请码有效"
+}
+--------------------------------------------------
+优惠码: 0BVWBTAEK6D
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0BVWBTAEK6D",
+  "content_length": 61111,
+  "message": "邀请码有效"
+}
+--------------------------------------------------
+优惠码: 0BXY0TJJ5LCS
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0BXY0TJJ5LCS",
+  "content_length": 61111,
+  "message": "邀请码有效"
+}
+--------------------------------------------------
+优惠码: 0DII5PGLJ71N
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0DII5PGLJ71N",
+  "content_length": 61111,
+  "message": "邀请码有效"
+}
+--------------------------------------------------
+优惠码: 0DRN57ACYB9
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0DRN57ACYB9",
+  "content_length": 61111,
+  "message": "邀请码有效"
+}
+--------------------------------------------------
+优惠码: 0DVWIYCBBXW
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0DVWIYCBBXW",
+  "content_length": 61111,
+  "message": "邀请码有效"
+}
+--------------------------------------------------
+优惠码: 0E8CGK8W43EH
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0E8CGK8W43EH",
+  "content_length": 61111,
+  "message": "邀请码有效"
+}
+--------------------------------------------------
+优惠码: 0FLRT2TTVRF
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0FLRT2TTVRF",
+  "content_length": 61111,
+  "message": "邀请码有效"
+}
+--------------------------------------------------
+优惠码: 0GGRW46VL4RP
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0GGRW46VL4RP",
+  "content_length": 61111,
+  "message": "邀请码有效"
+}
+--------------------------------------------------
+优惠码: 0HAR2IT1ZQTG
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0HAR2IT1ZQTG",
+  "content_length": 61111,
+  "message": "邀请码有效"
+}
+--------------------------------------------------
+优惠码: 0HBFX2L7TE4
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0HBFX2L7TE4",
+  "content_length": 61111,
+  "message": "邀请码有效"
+}
+--------------------------------------------------
+优惠码: 0IGFKKI3SLKP
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0IGFKKI3SLKP",
+  "content_length": 61111,
+  "message": "邀请码有效"
+}
+--------------------------------------------------
+优惠码: 0ISEYFS4NG09
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0ISEYFS4NG09",
+  "content_length": 61111,
+  "message": "邀请码有效"
+}
+--------------------------------------------------
+优惠码: 0IU6IHQZWO1D
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0IU6IHQZWO1D",
+  "content_length": 61111,
+  "message": "邀请码有效"
+}
+--------------------------------------------------
+优惠码: 0JGGGSVNSGJJ
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0JGGGSVNSGJJ",
+  "content_length": 61111,
+  "message": "邀请码有效"
+}
+--------------------------------------------------
+优惠码: 0L1QIRSIA5GV
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0L1QIRSIA5GV",
+  "content_length": 61111,
+  "message": "邀请码有效"
+}
+--------------------------------------------------
+优惠码: 0LO86SXPFDAG
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0LO86SXPFDAG",
+  "content_length": 61111,
+  "message": "邀请码有效"
+}
+--------------------------------------------------
+优惠码: 0LSN8HYM8KRO
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0LSN8HYM8KRO",
+  "content_length": 61111,
+  "message": "邀请码有效"
+}
+--------------------------------------------------
+优惠码: 0N1PRCOAI3VY
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0N1PRCOAI3VY",
+  "content_length": 61111,
+  "message": "邀请码有效"
+}
+--------------------------------------------------
+优惠码: 0NMRPLRJ4MYW
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0NMRPLRJ4MYW",
+  "content_length": 61111,
+  "message": "邀请码有效"
+}
+--------------------------------------------------
+优惠码: 0O5K3JP6EZIA
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0O5K3JP6EZIA"
+}
+--------------------------------------------------
+优惠码: 0OBPVYXBBUW3
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0OBPVYXBBUW3"
+}
+--------------------------------------------------
+优惠码: 0OMWNQJFXCUG
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0OMWNQJFXCUG"
+}
+--------------------------------------------------
+优惠码: 0ON5OMKJDXFA
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0ON5OMKJDXFA"
+}
+--------------------------------------------------
+优惠码: 0OPH39X2TGMX
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0OPH39X2TGMX"
+}
+--------------------------------------------------
+优惠码: 0OSDLBCHILBQ
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0OSDLBCHILBQ"
+}
+--------------------------------------------------
+优惠码: 0OW3GL78VT98
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0OW3GL78VT98"
+}
+--------------------------------------------------
+优惠码: 0Q6YIELSPRF
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0Q6YIELSPRF"
+}
+--------------------------------------------------
+优惠码: 0QD3UIGPW7JD
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0QD3UIGPW7JD"
+}
+--------------------------------------------------
+优惠码: 0QDSCRLPYJBH
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0QDSCRLPYJBH"
+}
+--------------------------------------------------
+优惠码: 0QTDURBZTMZ
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0QTDURBZTMZ"
+}
+--------------------------------------------------
+优惠码: 0QXZTMT6HQ0A
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0QXZTMT6HQ0A"
+}
+--------------------------------------------------
+优惠码: 0R1JAAKFPIW
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0R1JAAKFPIW"
+}
+--------------------------------------------------
+优惠码: 0RBYBW6PIFE
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0RBYBW6PIFE"
+}
+--------------------------------------------------
+优惠码: 0RYOXM3KWTXJ
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0RYOXM3KWTXJ"
+}
+--------------------------------------------------
+优惠码: 0T8INDIANOZ7
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0T8INDIANOZ7"
+}
+--------------------------------------------------
+优惠码: 0TKY3URQTM24
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0TKY3URQTM24"
+}
+--------------------------------------------------
+优惠码: 0TRGW8QA5Q
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0TRGW8QA5Q"
+}
+--------------------------------------------------
+优惠码: 0TVGPODLB778
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0TVGPODLB778"
+}
+--------------------------------------------------
+优惠码: 0UBMXKS7JTZH
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0UBMXKS7JTZH"
+}
+--------------------------------------------------
+优惠码: 0UIPSGKRYRWK
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0UIPSGKRYRWK"
+}
+--------------------------------------------------
+优惠码: 0UTFFJ0UDSE
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0UTFFJ0UDSE"
+}
+--------------------------------------------------
+优惠码: 0UUOPOHALZY9
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0UUOPOHALZY9"
+}
+--------------------------------------------------
+优惠码: 0UVXDX7PTZGU
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0UVXDX7PTZGU"
+}
+--------------------------------------------------
+优惠码: 0UWUTJBTEE
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0UWUTJBTEE"
+}
+--------------------------------------------------
+优惠码: 0VGWHZW3G41
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0VGWHZW3G41"
+}
+--------------------------------------------------
+优惠码: 0VQEXEDK9FQH
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0VQEXEDK9FQH"
+}
+--------------------------------------------------
+优惠码: 0W4SSDAHCCP
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0W4SSDAHCCP"
+}
+--------------------------------------------------
+优惠码: 0WYM6SXTJID
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0WYM6SXTJID"
+}
+--------------------------------------------------
+优惠码: 0XAQ1RAN8TQS
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0XAQ1RAN8TQS"
+}
+--------------------------------------------------
+优惠码: 0XDKDDFQNBGS
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0XDKDDFQNBGS"
+}
+--------------------------------------------------
+优惠码: 0XJVKAZM18MC
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0XJVKAZM18MC"
+}
+--------------------------------------------------
+优惠码: 0XVFNEDW4ES
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0XVFNEDW4ES"
+}
+--------------------------------------------------
+优惠码: 0YYAWWPLV
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0YYAWWPLV"
+}
+--------------------------------------------------
+优惠码: 0Z0FRTZPTCDP
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0Z0FRTZPTCDP"
+}
+--------------------------------------------------
+优惠码: 0ZGRRRZOI6TN
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0ZGRRRZOI6TN"
+}
+--------------------------------------------------
+优惠码: 0ZJVQZE0XD
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0ZJVQZE0XD"
+}
+--------------------------------------------------
+优惠码: 0ZWVBJXM1YO4
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=0ZWVBJXM1YO4"
+}
+--------------------------------------------------
+优惠码: 10DLHFUIRDIQ
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=10DLHFUIRDIQ"
+}
+--------------------------------------------------
+优惠码: 10UWHHRIFQR
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=10UWHHRIFQR"
+}
+--------------------------------------------------
+优惠码: 10XXNOGUDHWF
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=10XXNOGUDHWF"
+}
+--------------------------------------------------
+优惠码: 11AP4ES8G0EM
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=11AP4ES8G0EM"
+}
+--------------------------------------------------
+优惠码: 11E7S62TJJYJ
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=11E7S62TJJYJ"
+}
+--------------------------------------------------
+优惠码: 11X3GTKHYXX1
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=11X3GTKHYXX1"
+}
+--------------------------------------------------
+优惠码: 12UPX4S2NAE
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=12UPX4S2NAE"
+}
+--------------------------------------------------
+优惠码: 15Q7CRRCUUBX
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=15Q7CRRCUUBX"
+}
+--------------------------------------------------
+优惠码: 17CX3PGZ5M0K
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=17CX3PGZ5M0K"
+}
+--------------------------------------------------
+优惠码: 18N004WJXOW
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=18N004WJXOW"
+}
+--------------------------------------------------
+优惠码: 19HARFPMFYUO
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=19HARFPMFYUO"
+}
+--------------------------------------------------
+优惠码: 19HF2QECDP7V
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=19HF2QECDP7V"
+}
+--------------------------------------------------
+优惠码: 19RKADRYFMFR
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=19RKADRYFMFR"
+}
+--------------------------------------------------
+优惠码: 1AOMVFYYD
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=1AOMVFYYD"
+}
+--------------------------------------------------
+优惠码: 1B8T2XYUZWFN
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=1B8T2XYUZWFN"
+}
+--------------------------------------------------
+优惠码: 1BBMYLRAZSIA
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=1BBMYLRAZSIA"
+}
+--------------------------------------------------
+优惠码: 1BP7JWFOMSGF
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=1BP7JWFOMSGF"
+}
+--------------------------------------------------
+优惠码: 1CLVNLFRCQ7A
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=1CLVNLFRCQ7A"
+}
+--------------------------------------------------
+优惠码: 1DBDE22C8YWH
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=1DBDE22C8YWH"
+}
+--------------------------------------------------
+优惠码: 1DMSDLEL4IXK
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=1DMSDLEL4IXK"
+}
+--------------------------------------------------
+优惠码: 1DQK06YZUVHO
+结果: {
+  "status_code": 200,
+  "url": "https://www.cursor.com/cn/referral?code=1DQK06YZUVHO"
+}
+--------------------------------------------------

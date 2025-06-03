@@ -1,0 +1,86 @@
+# 手机微信发送图片的格式解析与PC微信的解析不同
+手机发送图片后的解析和报错如下：
+##xml格式
+2025-05-08 20:01:35 xxxbot-pad  | 2025-05-08 20:01:35 | INFO | 收到图片消息: 消息ID:77807592 来自:qinxiaoqiang2002 发送人:qinxiaoqiang2002 XML:<?xml version="1.0"?><msg><img aeskey="a9a82495fc78abd5dec1e5b30660ace7" encryver="1" cdnthumbaeskey="a9a82495fc78abd5dec1e5b30660ace7" cdnthumburl="3057020100044b30490201000204c6be2dfc02032df7fa020470ebd4760204681c9d1e042465666431633761652d633331662d343932322d613665352d653734343362653566303065020405150a020201000405004c53da00" cdnthumblength="2369" cdnthumbheight="120" cdnthumbwidth="55" cdnmidheight="0" cdnmidwidth="0" cdnhdheight="0" cdnhdwidth="0" cdnmidimgurl="3057020100044b30490201000204c6be2dfc02032df7fa020470ebd4760204681c9d1e042465666431633761652d633331662d343932322d613665352d653734343362653566303065020405150a020201000405004c53da00" length="59425" md5="d61d5f28990bc8c66aa9c3d25045dd82" hevc_mid_size="59425" originsourcemd5="e6f3c2f733c988b0c540bccc72badbb9"><secHashInfoBase64>eyJwaGFzaCI6IjEwMDAwMDAwMDAwMDAwMDAiLCJwZHFoYXNoIjoiNTE1YzE1MWMwNTBkMDQ4ZDBjYTk3YmM5ZWFiOWFhZjlmYWY5YWFhOWViZWI1YWY5MmFhZjdmMmMwMDA3NDE2NCJ9</secHashInfoBase64><live><duration>0</duration><size>0</size><md5 /><fileid /><hdsize>0</hdsize><hdmd5 /><hdfileid /><stillimagetimems>0</stillimagetimems></live></img><platform_signature /><imgdatahash /><ImgSourceInfo><ImgSourceUrl /><BizType>0</BizType></ImgSourceInfo></msg>
+
+2025-05-08 20:01:35 xxxbot-pad  | 2025-05-08 20:01:35 | INFO | 完成发送者联系人信息更新: qinxiaoqiang2002, 状态: success
+2025-05-08 20:01:35 xxxbot-pad  | 2025-05-08 20:01:35 | DEBUG | 解析图片XML成功: aeskey=a9a82495fc78abd5dec1e5b30660ace7, length=59425, md5=d61d5f28990bc8c66aa9c3d25045dd82
+2025-05-08 20:01:35 xxxbot-pad  | 2025-05-08 20:01:35 | DEBUG | 尝试使用get_msg_image下载图片: MsgId=77807592, length=59425
+2025-05-08 20:01:35 xxxbot-pad  | 2025-05-08 20:01:35 | INFO | 开始分段下载图片，总大小: 59425 字节，分 1 段下载
+2025-05-08 20:01:35 xxxbot-pad  | 2025-05-08 20:01:35 | DEBUG | 尝试下载图片分段: MsgId=77807592, ToWxid=qinxiaoqiang2002, DataLen=59425, StartPos=0, ChunkSize=59425
+2025-05-08 20:01:36 xxxbot-pad  | 2025-05-08 20:01:36 | INFO | 获取消息图片分段成功: MsgId=77807592, StartPos=0, ChunkSize=59425
+2025-05-08 20:01:36 xxxbot-pad  | 2025-05-08 20:01:36 | ERROR | 无法解析图片数据字典: {'BaseResponse': {'ret': -104, 'errMsg': {'string': 'cacheSize do not equal totalLen'}}, 'msgId': 77807592, 'fromUserName': {'string': 'qinxiaoqiang2002'}, 'toUserName': {'string': 'wxid_dhk872ypwuo12'}, 'totalLen': 0, 'startPos': 0, 'dataLen': 0, 'data': {'iLen': 0}, 'newMsgId': 0}
+2025-05-08 20:01:36 xxxbot-pad  | 2025-05-08 20:01:36 | DEBUG | 尝试使用备用API端点下载图片: MsgId=77807592
+2025-05-08 20:01:36 xxxbot-pad  | 2025-05-08 20:01:36 | ERROR | 备用API端点下载图片失败: 404, message='Attempt to decode JSON with unexpected mimetype: text/html; charset=utf-8', url='http://127.0.0.1:9011/VXAPI/Msg/GetMsgImage'
+2025-05-08 20:01:36 xxxbot-pad  | 2025-05-08 20:01:36 | ERROR | 第 1/1 段下载失败，数据为空
+2025-05-08 20:01:36 xxxbot-pad  | 2025-05-08 20:01:36 | WARNING | 分段下载图片失败，已下载: 0/59425 字节
+2025-05-08 20:01:36 xxxbot-pad  | 2025-05-08 20:01:36 | WARNING | 尝试使用download_image下载图片
+2025-05-08 20:01:36 xxxbot-pad  | 2025-05-08 20:01:36 | ERROR | 下载图片失败: 404, message='Attempt to decode JSON with unexpected mimetype: text/html; charset=utf-8', url='http://127.0.0.1:9011/VXAPI/Tools/CdnDownloadImg'
+2025-05-08 20:01:36 xxxbot-pad  | 2025-05-08 20:01:36 | ERROR | 备用方法下载图片也失败: 404, message='Attempt to decode JSON with unexpected mimetype: text/html; charset=utf-8', url='http://127.0.0.1:9011/VXAPI/Tools/CdnDownloadImg'
+2025-05-08 20:01:36 xxxbot-pad  | 2025-05-08 20:01:36 | INFO | Received image message: MsgId=77807592, Group=False, Sender=qinxiaoqiang2002, From=qinxiaoqiang2002
+2025-05-08 20:01:36 xxxbot-pad  | 2025-05-08 20:01:36 | DEBUG | MsgId=77807592: Extracting image data...
+2025-05-08 20:01:36 xxxbot-pad  | 2025-05-08 20:01:36 | DEBUG | MsgId=77807592: Attempting to extract image data. Content type: <class 'str'>
+2025-05-08 20:01:36 xxxbot-pad  | 2025-05-08 20:01:36 | WARNING | Sending error to user qinxiaoqiang2002 (in private): 无法解析图片数据。
+2025-05-08 20:01:36 xxxbot-pad  | 2025-05-08 20:01:36 | INFO | 发送文字消息: 对方wxid:qinxiaoqiang2002 at: 内容:抱歉，操作失败：无法解析图片数据。
+2025-05-08 20:02:20 xxxbot-pad  | 2025-05-08 20:02:20 | DEBUG | 检查最新的日志文件: /app/logs/XYBot_2025-05-08_20-00-16_394042.log
+2025-05-08 20:02:20 xxxbot-pad  | 2025-05-08 20:02:20 | DEBUG | 未检测到掉线追踪，状态文件最后更新时间: 120 秒前
+2025-05-08 20:02:20 xxxbot-pad  | 2025-05-08 20:02:20 | DEBUG | 未检测到掉线追踪，不触发重启
+
+手机
+
+# PC微信发送图片的解析和成功日志如下：
+025-05-08 19:40:57 xxxbot-pad  | 2025-05-08 19:40:57 | INFO | 收到图片消息: 消息ID:216106805 来自:qinxiaoqiang2002 发送人:qinxiaoqiang2002 XML:<?xml version="1.0"?><msg><img aeskey="54fadd8566501fa806f1d9f11c26e3e1" encryver="1" cdnthumbaeskey="54fadd8566501fa806f1d9f11c26e3e1" cdnthumburl="3057020100044b30490201000204c6be2dfc02032df7fa02042fecd4760204681c8866042464376333316331362d626436322d346136652d396236622d3365666436623138666537620204051418020201000405004c4d9a00" cdnthumblength="9707" cdnthumbheight="120" cdnthumbwidth="67" cdnmidheight="0" cdnmidwidth="0" cdnhdheight="0" cdnhdwidth="0" cdnmidimgurl="3057020100044b30490201000204c6be2dfc02032df7fa02042fecd4760204681c8866042464376333316331362d626436322d346136652d396236622d3365666436623138666537620204051418020201000405004c4d9a00" length="274196" md5="b904e27926df1fb6aee82e1f1779b07c"><secHashInfoBase64 /><live><duration>0</duration><size>0</size><md5 /><fileid /><hdsize>0</hdsize><hdmd5 /><hdfileid /><stillimagetimems>0</stillimagetimems></live></img><platform_signature /><imgdatahash /><ImgSourceInfo><ImgSourceUrl /><BizType>0</BizType></ImgSourceInfo></msg>
+2025-05-08 19:40:57 xxxbot-pad  | 2025-05-08 19:40:57 | INFO | 完成发送者联系人信息更新: qinxiaoqiang2002, 状态: success
+## xml格式：
+2025-05-08 19:40:57 xxxbot-pad  | 2025-05-08 19:40:57 | DEBUG | 解析图片XML成功: aeskey=54fadd8566501fa806f1d9f11c26e3e1, length=274196, md5=b904e27926df1fb6aee82e1f1779b07c
+
+2025-05-08 19:40:57 xxxbot-pad  | 2025-05-08 19:40:57 | DEBUG | 尝试使用get_msg_image下载图片: MsgId=216106805, length=274196
+2025-05-08 19:40:57 xxxbot-pad  | 2025-05-08 19:40:57 | INFO | 开始分段下载图片，总大小: 274196 字节，分 5 段下载
+2025-05-08 19:40:57 xxxbot-pad  | 2025-05-08 19:40:57 | DEBUG | 尝试下载图片分段: MsgId=216106805, ToWxid=qinxiaoqiang2002, DataLen=274196, StartPos=0, ChunkSize=65536
+2025-05-08 19:40:57 xxxbot-pad  | 2025-05-08 19:40:57 | INFO | 获取消息图片分段成功: MsgId=216106805, StartPos=0, ChunkSize=65536
+2025-05-08 19:40:57 xxxbot-pad  | 2025-05-08 19:40:57 | DEBUG | 第 1/5 段下载成功，大小: 65536 字节
+2025-05-08 19:40:57 xxxbot-pad  | 2025-05-08 19:40:57 | DEBUG | 尝试下载图片分段: MsgId=216106805, ToWxid=qinxiaoqiang2002, DataLen=274196, StartPos=65536, ChunkSize=65536
+2025-05-08 19:40:57 xxxbot-pad  | 2025-05-08 19:40:57 | INFO | 获取消息图片分段成功: MsgId=216106805, StartPos=65536, ChunkSize=65536
+2025-05-08 19:40:57 xxxbot-pad  | 2025-05-08 19:40:57 | DEBUG | 第 2/5 段下载成功，大小: 65536 字节
+2025-05-08 19:40:57 xxxbot-pad  | 2025-05-08 19:40:57 | DEBUG | 尝试下载图片分段: MsgId=216106805, ToWxid=qinxiaoqiang2002, DataLen=274196, StartPos=131072, ChunkSize=65536
+2025-05-08 19:40:58 xxxbot-pad  | 2025-05-08 19:40:58 | INFO | 获取消息图片分段成功: MsgId=216106805, StartPos=131072, ChunkSize=65536
+2025-05-08 19:40:58 xxxbot-pad  | 2025-05-08 19:40:58 | DEBUG | 第 3/5 段下载成功，大小: 65536 字节
+2025-05-08 19:40:58 xxxbot-pad  | 2025-05-08 19:40:58 | DEBUG | 尝试下载图片分段: MsgId=216106805, ToWxid=qinxiaoqiang2002, DataLen=274196, StartPos=196608, ChunkSize=65536
+2025-05-08 19:40:58 xxxbot-pad  | 2025-05-08 19:40:58 | INFO | 获取消息图片分段成功: MsgId=216106805, StartPos=196608, ChunkSize=65536
+2025-05-08 19:40:58 xxxbot-pad  | 2025-05-08 19:40:58 | DEBUG | 第 4/5 段下载成功，大小: 65536 字节
+2025-05-08 19:40:58 xxxbot-pad  | 2025-05-08 19:40:58 | DEBUG | 尝试下载图片分段: MsgId=216106805, ToWxid=qinxiaoqiang2002, DataLen=274196, StartPos=262144, ChunkSize=12052
+2025-05-08 19:40:58 xxxbot-pad  | 2025-05-08 19:40:58 | INFO | 获取消息图片分段成功: MsgId=216106805, StartPos=262144, ChunkSize=12052
+2025-05-08 19:40:58 xxxbot-pad  | 2025-05-08 19:40:58 | DEBUG | 第 5/5 段下载成功，大小: 12052 字节
+2025-05-08 19:40:58 xxxbot-pad  | 2025-05-08 19:40:58 | INFO | 分段下载图片成功，总大小: 274196 字节
+2025-05-08 19:40:58 xxxbot-pad  | 2025-05-08 19:40:58 | INFO | Received image message: MsgId=216106805, Group=False, Sender=qinxiaoqiang2002, From=qinxiaoqiang2002
+2025-05-08 19:40:58 xxxbot-pad  | 2025-05-08 19:40:58 | DEBUG | MsgId=216106805: Extracting image data...
+2025-05-08 19:40:58 xxxbot-pad  | 2025-05-08 19:40:58 | DEBUG | MsgId=216106805: Attempting to extract image data. Content type: <class 'str'>
+2025-05-08 19:40:58 xxxbot-pad  | 2025-05-08 19:40:58 | INFO | MsgId=216106805: Content appears to be base64 encoded.
+2025-05-08 19:40:58 xxxbot-pad  | 2025-05-08 19:40:58 | INFO | MsgId=216106805: Base64 decoded. Size: 274196
+2025-05-08 19:40:58 xxxbot-pad  | 2025-05-08 19:40:58 | INFO | MsgId=216106805: Image data extracted, size: 274196 bytes.
+2025-05-08 19:40:58 xxxbot-pad  | 2025-05-08 19:40:58 | DEBUG | MsgId=216106805: Preprocessing image...
+2025-05-08 19:40:58 xxxbot-pad  | 2025-05-08 19:40:58 | DEBUG | MsgId=216106805: Starting image preprocessing. Original size: 274196 bytes.
+2025-05-08 19:40:58 xxxbot-pad  | 2025-05-08 19:40:58 | INFO | MsgId=216106805: Image opened. Format: jpeg, Dims: (1280, 2769)
+2025-05-08 19:40:58 xxxbot-pad  | 2025-05-08 19:40:58 | INFO | MsgId=216106805: Resizing from (1280, 2769) to fit within (2048x2048).
+2025-05-08 19:40:58 xxxbot-pad  | 2025-05-08 19:40:58 | INFO | MsgId=216106805: Resized to (947, 2048).
+2025-05-08 19:40:58 xxxbot-pad  | 2025-05-08 19:40:58 | DEBUG | MsgId=216106805: Saving to buffer as JPEG with params: {'quality': 85, 'optimize': True}
+2025-05-08 19:40:58 xxxbot-pad  | 2025-05-08 19:40:58 | INFO | MsgId=216106805: Preprocessing done. Size: 212090B, Format: jpeg
+2025-05-08 19:40:58 xxxbot-pad  | 2025-05-08 19:40:58 | INFO | MsgId=216106805: Image preprocessed, new size: 212090 bytes, format: jpeg.
+2025-05-08 19:40:58 xxxbot-pad  | 2025-05-08 19:40:58 | DEBUG | MsgId=216106805: Storing image to S3 and getting URL...
+2025-05-08 19:40:58 xxxbot-pad  | 2025-05-08 19:40:58 | DEBUG | MsgId=216106805: Generated S3 unique filename: 216106805_de4b29de53db465e957afdf5bc975f6c.jpeg
+2025-05-08 19:40:58 xxxbot-pad  | 2025-05-08 19:40:58 | INFO | MsgId=216106805: Uploading to S3. Bucket: 7el7pqc7-knowledge, Filename: 216106805_de4b29de53db465e957afdf5bc975f6c.jpeg, Size: 212090B, ContentType: image/jpeg
+2025-05-08 19:40:58 xxxbot-pad  | 2025-05-08 19:40:58 | INFO | MsgId=216106805: Image uploaded to S3 object: 216106805_de4b29de53db465e957afdf5bc975f6c.jpeg
+2025-05-08 19:40:58 xxxbot-pad  | 2025-05-08 19:40:58 | INFO | MsgId=216106805: Constructed S3 URL: https://objectstorageapi.cloud.sealos.top/7el7pqc7-knowledge/216106805_de4b29de53db465e957afdf5bc975f6c.jpeg
+2025-05-08 19:40:58 xxxbot-pad  | 2025-05-08 19:40:58 | DEBUG | MsgId=216106805: S3 local backup enabled. Saving a copy locally.
+2025-05-08 19:40:58 xxxbot-pad  | 2025-05-08 19:40:58 | INFO | MsgId=216106805: Local backup saved to tmp/fastgpt_images/216106805_de4b29de53db465e957afdf5bc975f6c.jpeg
+2025-05-08 19:40:58 xxxbot-pad  | 2025-05-08 19:40:58 | INFO | MsgId=216106805: Image uploaded to S3. Public URL: https://objectstorageapi.cloud.sealos.top/7el7pqc7-knowledge/216106805_de4b29de53db465e957afdf5bc975f6c.jpeg
+2025-05-08 19:40:58 xxxbot-pad  | 2025-05-08 19:40:58 | INFO | MsgId=216106805: Calling FastGPT API for image analysis. ChatId: qinxiaoqiang2002_default_image
+2025-05-08 19:40:58 xxxbot-pad  | 2025-05-08 19:40:58 | DEBUG | Calling FastGPT API. URL: https://admin.xiaoyibao.com.cn/api/v1/chat/completions, ChatId: qinxiaoqiang2002_default_image, Detail: False
+2025-05-08 19:40:58 xxxbot-pad  | 2025-05-08 19:40:58 | TRACE | FastGPT Request: {"chatId": "qinxiaoqiang2002_default_image", "stream": false, "detail": false, "messages": [{"role": "user", "content": [{"type": "text", "text": "你是肿瘤报告分析专家，分析图片内容，给出重点提示和建议。"}, {"type": "image_url", "image_url": {"url": "https://objectstorageapi.cloud.sealos.top/7el7pqc7-knowledge/216106805_de4b29de53db465e957afdf5bc975f6c.jpeg"}}]}]}
+2025-05-08 19:41:35 xxxbot-pad  | 2025-05-08 19:41:35 | DEBUG | FastGPT API Status: 200
+2025-05-08 19:41:35 xxxbot-pad  | 2025-05-08 19:41:35 | TRACE | FastGPT API Raw Response (first 500 chars): {"id":"qinxiaoqiang2002_default_image","model":"","usage":{"prompt_tokens":1,"completion_tokens":1,"total_tokens":1},"choices":[{"message":{"role":"assistant","content":"### 【报告总结】：\n该CT平扫报告显示腹部术后改变，胰头区肿块持续存在，较前片（2025-01-06）大小相仿，提示胰腺肿瘤可能未得到有效控制。报告还提到门静脉及肠系膜上静脉多发迂曲扩张、腹腔干区肿块、脂肪肝、胆囊切除术后改变、前腹壁增厚伴渗出、肠系膜间隙及腹膜后多发稍大淋巴结、双侧腹股沟区多发稍大淋巴结以及双肾结石。建议结合临床病史，进一步检查以明确诊断和评估病情。\n\n### 【重点详述】：\n1. **胰头区肿块**：\n   - **描述**：胰头区呈团块状软组织密度影，较前片（2025-01-06）大小相仿。\n   - **临床意义**：胰头区肿块可能提示胰腺肿瘤，如胰腺癌，且肿块持续存在可能表明肿瘤未得到有效控制。\n   - *
+2025-05-08 19:41:35 xxxbot-pad  | 2025-05-08 19:41:35 | INFO | FastGPT API extracted content: '### 【报告总结】：
+2025-05-08 19:41:35 xxxbot-pad  | 该CT平扫报告显示腹部术后改变，胰头区肿块持续存在，较前片（2025-01-06）大小相仿，提示胰腺肿瘤可能未得到有效控制。报告还提到门静脉及肠系膜上静脉多发迂曲扩张、腹腔干区...'
+2025-05-08 19:41:35 xxxbot-pad  | 2025-05-08 19:41:35 | INFO | MsgId=216106805: FastGPT API call for image successful.
+2025-05-08 19:41:35 xxxbot-pad  | 2025-05-08 19:41:35 | INFO | 发送文字消息: 对方wxid:qinxiaoqiang2002 at: 内容:### 【报告总结】：
+2025-05-08 19:41:35 xxxbot-pad  | 该CT平扫报告显示腹部术后改变，胰头区肿块持续存在，较前片（2025-01-06）大小相仿，提示胰腺肿瘤可能未得到有效控制。报告还提到门静脉及肠系膜上静脉多发迂曲扩张、腹腔干区肿块、脂肪肝、胆囊切除术后改变、前腹壁增厚伴渗出、肠系膜间隙及腹膜后多发稍大淋巴结、双侧腹股沟区多发稍大淋巴结以及双肾结石。建议结合临床病史，进一步检查以明确诊断和评估病情。

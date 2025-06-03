@@ -1,0 +1,11 @@
+[yuewen]
+enable = false
+need_login = true
+current_model_id = 6
+network_mode = true
+trigger_prefix = "yw"
+api_version = "old"
+
+[yuewen.image_config]
+imgprompt = "解释下图片内容"
+trigger = "识图"
