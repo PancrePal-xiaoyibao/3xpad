@@ -33,3 +33,5 @@ httpx~=0.25.1
 py7zr~=0.20.5
 pyunpack~=0.3
 tomli_w~=1.0.0
+PyJWT~=2.10.0
+cryptography~=42.0.0

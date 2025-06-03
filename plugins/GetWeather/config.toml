@@ -1,8 +1,0 @@
-[GetWeather]
-enable = true
-command-format = """⚙️获取天气：
-天气 城市名
-天气城市名
-城市名天气
-城市名 天气"""
-api-key = "" # 申请链接： https://dev.qweather.com/  项目订阅选免费订阅即可，把获得到的Key (不是Public ID 而是Private KEY) 填到上面引号中

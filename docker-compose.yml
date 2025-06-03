@@ -3,13 +3,14 @@ services:
     image: nanssye/xxxbot-pad:latest
     container_name: xxxbot-pad
     restart: unless-stopped
-    pull_policy: always # 确保每次都检查并拉取最新的镜像
+    pull_policy: if_not_present  # 只在镜像不存在时才拉取
     ports:
       - "9090:9090" # 管理后台端口
-      - "3000:3000" # WeTTy终端端口
+      - "3300:3000" # WeTTy终端端口
     volumes:
       - xxxbot-pad:/app
       - redis_data:/var/lib/redis
+      - ./plugins:/app/plugins
 
 volumes:
   redis_data:

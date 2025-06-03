@@ -21,7 +21,7 @@ from utils.plugin_base import PluginBase
 class SiliconFlow(PluginBase):
     description = "硅基流动API插件"
     author = "老夏的金库"
-    version = "1.3.0"
+    version = "1.3.1"
     is_ai_platform = True
 
     def __init__(self):
@@ -245,39 +245,25 @@ class SiliconFlow(PluginBase):
         try:
             if "MsgId" not in message:
                 logger.error("消息中缺少MsgId字段")
-                return None
+                return b""
 
-            # 尝试获取图片数据
-            try:
-                image_data = await bot.get_msg_image(message["MsgId"])
-            except Exception as e:
-                logger.error(f"调用get_msg_image失败: {str(e)}")
-                return None
-
-            # 验证图片数据
+            image_data = await bot.get_msg_image(message["MsgId"])
             if not image_data:
                 logger.error("获取的图片数据为空")
-                return None
+                return b""
 
-            # 检查图片大小
             if len(image_data) < 1024:
                 logger.error(f"获取的图片数据过小: {len(image_data)}字节")
-                return None
+                return b""
 
-            # 检查图片格式 (JPEG或PNG)
-            is_jpeg = image_data[:2] == b"\xff\xd8"
-            is_png = len(image_data) > 8 and image_data[:8] == b"\x89PNG\r\n\x1a\n"
-
-            if not (is_jpeg or is_png):
+            if image_data[:2] != b"\xff\xd8" and image_data[:8] != b"\x89PNG\r\n\x1a\n":
                 logger.error("获取的图片数据不是有效的JPEG或PNG格式")
-                return None
+                return b""
 
-            logger.info(f"成功获取图片数据，大小: {len(image_data)} 字节，格式: {'JPEG' if is_jpeg else 'PNG'}")
             return image_data
         except Exception as e:
             logger.error(f"获取图片数据失败: {str(e)}")
-            logger.error(traceback.format_exc())
-            return None
+            return b""
 
     async def download_file(self, url: str) -> bytes:
         """下载文件并返回文件内容"""
@@ -411,40 +397,11 @@ class SiliconFlow(PluginBase):
     async def analyze_image(self, image_data: bytes) -> str:
         """分析图片内容"""
         try:
-            # 检查图片大小
             if len(image_data) > 10 * 1024 * 1024:
-                logger.warning(f"图片过大: {len(image_data)/1024/1024:.2f}MB")
                 return "图片过大，请上传小于10MB的图片"
 
-            # 检查图片格式并确定MIME类型
-            mime_type = "image/jpeg"  # 默认MIME类型
-            if image_data[:2] == b"\xff\xd8":
-                mime_type = "image/jpeg"
-            elif image_data[:8] == b"\x89PNG\r\n\x1a\n":
-                mime_type = "image/png"
-            else:
-                # 尝试使用PIL检测图片格式
-                try:
-                    from PIL import Image
-                    img = Image.open(BytesIO(image_data))
-                    if img.format == "JPEG":
-                        mime_type = "image/jpeg"
-                    elif img.format == "PNG":
-                        mime_type = "image/png"
-                    else:
-                        mime_type = f"image/{img.format.lower()}"
-                except Exception as img_error:
-                    logger.error(f"无法检测图片格式: {str(img_error)}")
-                    return None
+            image_base64 = base64.b64encode(image_data).decode('utf-8')
 
-            # 转换为base64
-            try:
-                image_base64 = base64.b64encode(image_data).decode('utf-8')
-            except Exception as b64_error:
-                logger.error(f"Base64编码失败: {str(b64_error)}")
-                return None
-
-            # 构建API请求
             messages = [{
                 "role": "user",
                 "content": [
@@ -452,7 +409,7 @@ class SiliconFlow(PluginBase):
                     {
                         "type": "image_url",
                         "image_url": {
-                            "url": f"data:{mime_type};base64,{image_base64}",
+                            "url": f"data:image/jpeg;base64,{image_base64}",
                             "detail": "low"
                         }
                     }
@@ -471,45 +428,33 @@ class SiliconFlow(PluginBase):
                 "Authorization": f"Bearer {self.vision_api_key}"
             }
 
-            # 发送API请求
-            try:
-                async with aiohttp.ClientSession() as session:
-                    async with session.post(
-                        f"{self.vision_base_url}/chat/completions",
-                        headers=headers,
-                        json=data,
-                        timeout=aiohttp.ClientTimeout(total=180)
-                    ) as response:
-                        if response.status != 200:
-                            error = await response.text()
-                            logger.error(f"视觉API错误[{response.status}]: {error}")
-                            return None
+            async with aiohttp.ClientSession() as session:
+                async with session.post(
+                    f"{self.vision_base_url}/chat/completions",
+                    headers=headers,
+                    json=data,
+                    timeout=180
+                ) as response:
+                    if response.status != 200:
+                        error = await response.text()
+                        logger.error(f"视觉API错误[{response.status}]: {error}")
+                        return "图片分析服务错误"
 
-                        result = await response.json()
-                        logger.debug(f"视觉API响应: {json.dumps(result, indent=2)}")
+                    result = await response.json()
+                    logger.debug(f"视觉API响应: {json.dumps(result, indent=2)}")
 
-                        if not isinstance(result, dict) or "choices" not in result:
-                            logger.error("视觉API返回格式错误")
-                            return None
+                    if not isinstance(result, dict) or "choices" not in result:
+                        logger.error("视觉API返回格式错误")
+                        return "无法解析响应"
 
-                        content = result["choices"][0].get("message", {}).get("content", "")
-                        if not content:
-                            logger.warning("视觉API返回空内容")
-                            return None
-
-                        return content
-            except asyncio.TimeoutError:
-                logger.error("图片分析请求超时")
-                return None
-            except Exception as api_error:
-                logger.error(f"API请求失败: {str(api_error)}")
-                logger.error(traceback.format_exc())
-                return None
-
+                    return result["choices"][0].get("message", {}).get("content", "无法获取分析结果")
+        except asyncio.TimeoutError:
+            logger.error("图片分析请求超时")
+            return "图片分析超时，请稍后再试"
         except Exception as e:
             logger.error(f"分析图片失败: {str(e)}")
             logger.error(traceback.format_exc())
-            return None
+            return "图片分析服务暂时不可用"
 
     @on_text_message(priority=50)
     async def handle_text_message(self, bot: WechatAPIClient, message: dict):
@@ -579,31 +524,18 @@ class SiliconFlow(PluginBase):
         wxid = message["FromWxid"]
 
         try:
-            # 获取图片数据
             image_data = await self.get_image_data(bot, message)
             if not image_data:
-                logger.warning("无法获取有效的图片内容，跳过处理")
-                return True  # 返回True让其他插件处理
+                await bot.send_text_message(wxid, "无法获取有效的图片内容")
+                return False
 
-            # 分析图片
-            try:
-                analysis = await self.analyze_image(image_data)
-                if analysis:
-                    await bot.send_text_message(wxid, analysis)
-                    logger.info(f"成功分析并发送图片描述，长度: {len(analysis)}")
-                    return False  # 处理成功，不让其他插件处理
-                else:
-                    logger.warning("图片分析返回空结果")
-                    return True  # 返回True让其他插件处理
-            except Exception as analyze_error:
-                logger.error(f"分析图片失败: {str(analyze_error)}")
-                logger.error(traceback.format_exc())
-                return True  # 分析失败，让其他插件处理
-
+            analysis = await self.analyze_image(image_data)
+            await bot.send_text_message(wxid, analysis)
+            return False
         except Exception as e:
             logger.error(f"处理图片消息失败: {str(e)}")
-            logger.error(traceback.format_exc())
-            return True  # 出错时返回True让其他插件处理
+            await bot.send_text_message(wxid, "图片分析失败，请稍后再试")
+            return False
 
     async def call_chat_api(self, messages: List[Dict[str, str]]) -> str:
         """调用对话API"""
@@ -638,7 +570,7 @@ class SiliconFlow(PluginBase):
                         logger.error("对话API返回格式错误")
                         return "无法解析响应"
 
-                    return result["choices"][0].get("message", {}).get("content", "无法获取回复")
+                    return result["choices"][0].get("message", {}).get("content", "无法获取回复").strip()
         except asyncio.TimeoutError:
             logger.error("对话API请求超时")
             return "请求超时，请稍后再试"

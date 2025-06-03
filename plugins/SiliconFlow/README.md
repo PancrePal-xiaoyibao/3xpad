@@ -9,6 +9,7 @@
 - **简单直接**：直接调用硅基流动 API，无需额外的服务器 ✅
 - **丰富的模型支持**：支持硅基流动平台上的各种模型，包括通义千问、GLM等 🤖
 - **代理支持**：支持配置 HTTP 代理，解决网络访问问题 🌐
+- **多种类型交互**：支持自然语言文本问答、文生图、图片识别
 
 ## 安装
 
@@ -21,33 +22,46 @@
 ```toml
 [SiliconFlow]
 enable = true                           # 是否启用此功能
+handle_all_messages = false               # 是否处理所有消息（不需要命令前缀）
+cleanup_days = 3       # 临时文件清理时间，单位 天
+
+
+# 文本模型配置
+[TextGeneration]
+enable = true                           # 是否启用此功能
 api-key = ""                            # 硅基流动API密钥，必填
 base-url = "https://api.siliconflow.cn/v1"  # 硅基流动API地址
-
-# 模型配置
-default-model = "Qwen/QwQ-32B"          # 默认使用的模型
-available-models = [                    # 可用模型列表
-    "Qwen/QwQ-32B",
-    "Qwen/Qwen2.5-72B-Instruct",
-    "Qwen/Qwen2.5-32B-Instruct",
-    "Qwen/Qwen2.5-14B-Instruct",
-    "Qwen/Qwen2.5-7B-Instruct",
-    "THUDM/glm-4-9b-chat",
-    "deepseek-ai/DeepSeek-R1"
-]
-
-# 命令配置
-commands = ["硅基", "sf", "SiliconFlow"]  # 触发插件的命令
-
-# Http代理设置
-http-proxy = ""                         # HTTP代理设置
-
+default-model = "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B"          # 默认使用的模型
+commands = ["硅基", "sf", "SiliconFlow"]    # 触发插件的命令
 # 高级设置
 max_tokens = 4096                       # 最大token数
 temperature = 0.7                       # 温度参数
 top_p = 0.7                             # Top-p采样
 top_k = 50                              # Top-k采样
 frequency_penalty = 0.5                 # 频率惩罚
+
+
+# 图片生成配置
+[ImageGeneration]
+enable = true                           # 是否启用此功能
+api-key = ""                            # 硅基流动API密钥，必填
+base-url = "https://api.siliconflow.cn/v1"  # 硅基流动API地址
+image-model = "Kwai-Kolors/Kolors"
+image-size = "1024x1024"
+image-steps = 20
+image-guidance-scale = 7.5
+image-commands = ["画图", "绘图", "生成图片"]
+image-batch-size = 4
+
+
+# 视觉模型配置
+[VisionRecognition]
+enable = true                           # 是否启用此功能
+api-key = ""                            # 硅基流动API密钥，必填
+base-url = "https://api.siliconflow.cn/v1"  # 硅基流动API地址
+vision-model = "Qwen/Qwen2.5-VL-72B-Instruct"
+auto_analyze_images = true
+vision_prompt = "请详细描述这张图片的内容"
 ```
 
 ## 使用方法
@@ -72,5 +86,5 @@ frequency_penalty = 0.5                 # 频率惩罚
 ## 开发者信息
 
 - 作者：XYBot团队
-- 版本：1.0.0
+- 版本：1.3.1
 - 许可证：MIT

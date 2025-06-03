@@ -1,0 +1,15 @@
+[Music_puls]
+enable = true
+command = ["点歌", "音乐"]
+command-format = "请使用「点歌 歌曲名」格式点歌"
+play_command = "播放"
+api_url = "https://www.hhlqilongzhu.cn/api/dg_kgmusic.php"
+
+# 新增日志配置
+[Music_puls.log]
+enabled = true               # 日志总开关（true=启用，false=禁用）
+level = "ERROR"              # 日志级别（可选：DEBUG/INFO/WARNING/ERROR/CRITICAL）
+
+# 新增功能控制配置
+[Music_puls.features]
+fetch_song_list = false       # 歌曲列表获取开关（true=显示列表，false=直接播放一首歌）

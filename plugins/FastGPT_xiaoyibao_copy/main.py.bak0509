@@ -1,0 +1,786 @@
+# --- START OF FILE FastGPT/main.py ---
+from typing import Optional, List
+import asyncio
+import base64 # 确保 base64 被导入
+import io
+import json
+import os
+import re
+import subprocess
+import sys
+import time
+import traceback
+import uuid
+
+# 优先尝试导入标准库的 tomllib (Python 3.11+)
+try:
+    import tomllib
+except ImportError:
+    # 如果失败，尝试导入 tomli (需要 pip install tomli)
+    try:
+        import tomli as tomllib
+    except ImportError:
+        # 如果两者都失败，将 tomllib 设为 None，后续逻辑会处理
+        tomllib = None
+
+import aiohttp
+from loguru import logger
+from PIL import Image, ImageFile
+
+from WechatAPI import WechatAPIClient
+from database.XYBotDB import XYBotDB
+from utils.decorators import *
+from utils.plugin_base import PluginBase
+
+# 尝试导入 minio
+try:
+    from minio import Minio
+    from minio.error import S3Error
+    minio_available = True
+except ImportError:
+    minio_available = False
+    # 不在这里打日志，推迟到 __init__ 中根据配置判断是否需要 minio 时再打
+
+ImageFile.LOAD_TRUNCATED_IMAGES = True
+
+
+class FastGPT(PluginBase):
+    description = "FastGPT知识库问答插件"
+    author = "老夏的金库"
+    version = "1.2.1" # 版本号更新
+    is_ai_platform = True
+
+    def __init__(self):
+        super().__init__()
+        logger.info("Initializing FastGPT Plugin...")
+        self.enable = False # 默认禁用，初始化成功后再启用
+
+        # 1. 检查和安装依赖 (包括 tomli)
+        self._check_and_install_dependencies()
+
+        # 2. 再次确认 TOML 库是否可用
+        if tomllib is None: # 如果模块顶部的导入尝试都失败了
+            try:
+                import tomli as final_tomllib_attempt # 尝试在依赖安装后再次导入tomli
+                globals()['tomllib'] = final_tomllib_attempt # 更新全局别名
+                logger.info("Successfully imported 'tomli' and aliased as 'tomllib' after dependency check.")
+            except ImportError:
+                logger.error("TOML library ('tomllib' or 'tomli') is not available even after dependency check. Cannot parse config.toml. FastGPT plugin will be disabled.")
+                return # 初始化失败，保持 self.enable = False
+
+        try:
+            # 3. 读取主配置
+            with open("main_config.toml", "rb") as f:
+                main_config = tomllib.load(f)
+            logger.debug("Main config loaded.")
+
+            # 4. 读取插件配置
+            config_path = os.path.join(os.path.dirname(__file__), "config.toml")
+            logger.debug(f"Attempting to load config from: {config_path}")
+
+            with open(config_path, "rb") as f:
+
+                plugin_config_data = tomllib.load(f)
+                logger.debug(f"Plugin config loaded from {config_path}")
+
+            plugin_config = plugin_config_data.get("FastGPT", {})
+            self.plugin_config = plugin_config  # 保存整个配置以便后续使用
+
+            if not plugin_config:
+                logger.error("No [FastGPT] section found in config.toml")
+                return
+            # --- 开始读取配置 ---
+            _enable_from_config = plugin_config.get("enable", False) # 临时变量
+            logger.debug(f"Config enable status: {_enable_from_config}")
+
+            self.api_key = plugin_config.get("api-key", "")
+            self.base_url = plugin_config.get("base-url", "https://api.fastgpt.in/api")
+            self.app_id = plugin_config.get("app-id", "")
+
+            # 输出详细的配置信息
+            logger.debug("=== FastGPT Configuration ===")
+            logger.debug(f"enable: {_enable_from_config}")
+            logger.debug(f"api-key: {self.api_key[:10]}... (truncated)")
+            logger.debug(f"base-url: {self.base_url}")
+            logger.debug(f"app-id: {self.app_id or 'not set'}")
+            logger.debug("==========================")
+            # 命令配置
+            self.commands = plugin_config.get("commands", [])
+            self.command_tip = plugin_config.get("command-tip", "")
+            self.detail = plugin_config.get("detail", False)
+            self.http_proxy = plugin_config.get("http-proxy", "")
+
+            # 在这里添加新的配置读取 
+            # self.plugin_config = plugin_config  # 保存整个配置以便后续使用
+            self.image_commands = plugin_config.get("image-commands", ["图片分析"])
+            self.image_prompt = plugin_config.get("image-prompts", "请描述这张图片的主要内容。")
+
+            # 积分系统配置
+            self.price = plugin_config.get("price", 5)
+            self.admin_ignore = plugin_config.get("admin_ignore", True)
+            self.whitelist_ignore = plugin_config.get("whitelist_ignore", True)
+            self.admins = main_config.get("XYBot", {}).get("admins", [])
+
+            self.db = XYBotDB()
+
+            # 图片处理相关配置
+            self.storage_type = plugin_config.get("storage-type", "none").lower() # 默认 "none"
+            self.image_tmp_dir = plugin_config.get("image-tmp-dir", "tmp/fastgpt_images")
+            self.image_expire_time = plugin_config.get("image-expire-time", 300)
+            self.cleanup_interval = plugin_config.get("cleanup-interval", 300)
+            self.max_image_size_bytes = plugin_config.get("max-image-size-bytes", 5 * 1024 * 1024)
+            self.allowed_formats = [fmt.lower() for fmt in plugin_config.get("allowed-formats", ["jpg", "jpeg", "png", "gif", "webp"])]
+            self.max_width = plugin_config.get("max-width", 2048)
+            self.max_height = plugin_config.get("max-height", 2048)
+            self.jpeg_quality = plugin_config.get("jpeg-quality", 85)
+            self.image_prompt = plugin_config.get("image-prompt", "请描述这张图片的主要内容。")
+
+            self.s3_config = None
+            self.s3_enable_local_backup = False
+            if self.storage_type == "s3":
+                global minio_available # 引用全局变量
+                if not minio_available:
+                    logger.error("Minio library is required for S3 storage but is not installed or failed to import. Please run 'pip install minio'. S3 storage will be disabled.")
+                    # S3不可用，但不完全禁用插件，文本功能可能仍可用
+                else:
+                    # 首先构建基础配置                    
+                    self.s3_config = {
+                        "access_key": plugin_config.get("s3-access-key", ""),
+                        "secret_key": plugin_config.get("s3-secret-key", ""),
+                        "endpoint": plugin_config.get("s3-endpoint", ""),
+                        "bucket": plugin_config.get("s3-bucket", ""),
+                        "secure": plugin_config.get("s3-secure", True),
+                    }
+
+                    # 验证必要的配置是否完整
+                    if not all([self.s3_config["access_key"], 
+                            self.s3_config["secret_key"], 
+                            self.s3_config["endpoint"], 
+                            self.s3_config["bucket"]]):
+                        logger.error("S3 storage is enabled, but some S3 configuration parameters (access_key, secret_key, endpoint, bucket) are missing. S3 functionality will be disabled.")
+                        self.s3_config = None  # 标记S3配置无效
+
+                    else:
+                        # 配置完整，处理bucket名称
+                        access_key = self.s3_config["access_key"]
+                        raw_bucket = self.s3_config["bucket"]
+                        if not raw_bucket.startswith(f"{access_key}-"):
+                            self.s3_config["bucket"] = f"{access_key}-{raw_bucket}"
+                        logger.info(f"Using S3 bucket: {self.s3_config['bucket']}")                       
+
+                    # 保留本地备份配置
+                    self.s3_enable_local_backup = plugin_config.get("s3-enable-local-backup", True)
+                    logger.info(f"local backup saved: {self.s3_enable_local_backup}")
+                    logger.info(f"FastGPT S3 Config loaded for bucket: {self.s3_config.get('bucket')}")
+
+            elif self.storage_type != "none":
+                 logger.warning(f"Unsupported storage_type '{self.storage_type}' configured. Only 's3' or 'none' are actively supported for generating image URLs for FastGPT. Image analysis might not work.")
+        # 添加调试日志
+            logger.debug(f"FastGPT initialization status check:")
+            logger.debug(f"- enable from config: {_enable_from_config}")
+            logger.debug(f"- api_key: {'set' if self.api_key else 'not set'}")
+            logger.debug(f"- base_url: {'set' if self.base_url else 'not set'}")
+            logger.debug(f"- app_id: {'set' if self.app_id else 'not set (optional)'}")
+
+            # 只有当配置了S3或显式启用了本地备份时，才创建目录和清理任务
+            if (self.s3_config and self.s3_enable_local_backup) or self.storage_type == "none": # "none"时也可能用于临时文件
+                try:
+                    os.makedirs(self.image_tmp_dir, exist_ok=True)
+                    logger.info(f"Ensured image temp directory exists: {self.image_tmp_dir}")
+                    asyncio.create_task(self._cleanup_expired_images())
+                    logger.info("Scheduled task for cleaning up expired local images.")
+                except OSError as e:
+                    logger.error(f"Failed to create image_tmp_dir '{self.image_tmp_dir}': {e}. Local image backup/cleanup might fail.")
+
+            # 最终启用插件的条件判断
+            if not _enable_from_config:
+                logger.warning("FastGPT plugin is explicitly disabled in config.toml")
+                return
+            
+            if not self.api_key:
+                logger.error("FastGPT API key is not configured")
+                return
+                
+            if not self.base_url:
+                logger.error("FastGPT base URL is not configured")
+                return
+
+            # 所有条件都满足，启用插件
+            self.enable = True
+            logger.success("FastGPT Plugin initialized and enabled successfully")
+            logger.info(f"Using base URL: {self.base_url}")
+            if not self.app_id:
+                logger.info("App ID not set, will use default conversation mode")
+
+        except Exception as e:
+            logger.error(f"FastGPT Plugin initialization failed: {e}")
+            logger.error(traceback.format_exc())
+
+    @on_text_message(priority=40)
+    async def handle_text_message(self, bot: WechatAPIClient, message: dict):
+        if not self.enable:
+            logger.trace("FastGPT plugin is disabled, skipping text message.")
+            return True
+
+        content = message.get("Content", "").strip()
+        is_group = message.get("IsGroup", False)
+        sender_wxid = message.get("SenderWxid")
+        from_wxid = message.get("FromWxid")
+
+        logger.debug(f"Received text message: Group={is_group}, Sender={sender_wxid}, From={from_wxid}, Content='{content[:50]}...'")
+
+        query = ""
+        if is_group:
+            parts = content.split(" ", 1)
+            command_word = parts[0]
+            if not command_word in self.commands:
+                logger.trace(f"Command '{command_word}' not in FastGPT commands, skipping.")
+                return True
+            if len(parts) < 2 or not parts[1].strip():
+                logger.warning(f"Invalid command format or empty query for command '{command_word}'.")
+                await bot.send_at_message(
+                    from_wxid,
+                    f"\n{self.command_tip or '请输入问题内容'}，例如：{self.commands[0]} 什么是FastGPT?",
+                    [sender_wxid]
+                )
+                return False
+            query = parts[1].strip()
+        else:
+            query = content
+            if not query:
+                logger.trace("Private chat message is empty, skipping.")
+                return True
+
+        if not await self._check_point(bot, message):
+            logger.info(f"User {sender_wxid} has insufficient points for FastGPT.")
+            return False
+
+        chat_id = f"{sender_wxid}_{self.app_id if self.app_id else 'default'}"
+        logger.debug(f"Generated chatId for FastGPT text query: {chat_id}")
+
+        try:
+            messages_payload = [{"role": "user", "content": query}]
+            logger.info(f"Calling FastGPT API for text query. ChatId: {chat_id}")
+            result_content, success = await self._call_fastgpt_api(bot, message, messages_payload, chat_id)
+
+            if success:
+                logger.info(f"FastGPT API call successful. Replying to user.")
+                if is_group:
+                    await bot.send_at_message(from_wxid, f"\n{result_content}", [sender_wxid])
+                else:
+                    await bot.send_text_message(from_wxid, result_content)
+                if self.price > 0:
+                    if not (sender_wxid in self.admins and self.admin_ignore) and \
+                       not (self.db.get_whitelist(sender_wxid) and self.whitelist_ignore):
+                        self.db.add_points(sender_wxid, -self.price)
+                        logger.info(f"Deducted {self.price} points from user {sender_wxid}.")
+            else:
+                logger.warning(f"FastGPT API call failed for text query. ChatId: {chat_id}")
+            return False
+        except Exception as e:
+            logger.error(f"FastGPT text message handling failed: {e}")
+            logger.error(traceback.format_exc())
+            await self._send_error_message(bot, message, "处理您的请求时发生内部错误。")
+            return False
+
+    @on_image_message(priority=40)
+    async def handle_image_message(self, bot: WechatAPIClient, message: dict):
+        if not self.enable:
+            logger.trace("FastGPT plugin is disabled, skipping image message.")
+            return True
+
+        # 图片分析功能依赖 S3 配置
+        if self.storage_type != "s3" or not self.s3_config:
+            logger.warning(f"Image analysis is currently only supported with S3 storage.")
+            return True # 继续让其他插件处理
+
+        is_group = message.get("IsGroup", False)
+        sender_wxid = message.get("SenderWxid")
+        from_wxid = message.get("FromWxid")
+        msg_id = message.get("MsgId", str(uuid.uuid4()))
+        content = message.get("Content", "").strip()  # 获取消息文本内容
+
+        logger.info(f"Received image message: MsgId={msg_id}, Group={is_group}, Sender={sender_wxid}, From={from_wxid}")
+        logger.debug(f"Group message content: '{content}'")
+        logger.debug(f"Image commands: {self.image_commands}")
+            # 检查是否需要处理这条消息
+        if is_group:
+            # 群聊需要检查触发词
+            image_commands = self.plugin_config.get("image-commands", ["图片分析", "报告分析"]) 
+            if not any(cmd in content for cmd in image_commands):
+                logger.trace(f"Group message does not contain image analysis trigger words: {image_commands}")
+                return True
+            logger.info(f"Group image message contains trigger word, will process")
+    
+
+        if not await self._check_point(bot, message):
+            logger.info(f"User {sender_wxid} has insufficient points for FastGPT image analysis.")
+            return False
+
+        try:
+            logger.debug(f"MsgId={msg_id}: Extracting image data...")
+            image_data = await self._extract_image_data_from_message(bot, message)
+            if not image_data:
+                await self._send_error_message(bot, message, "无法解析图片数据。")
+                return False
+            logger.info(f"MsgId={msg_id}: Image data extracted, size: {len(image_data)} bytes.")
+
+            logger.debug(f"MsgId={msg_id}: Preprocessing image...")
+            processed_image_data, image_format = await self._preprocess_image(image_data, msg_id)
+            if not processed_image_data:
+                await self._send_error_message(bot, message, "图片处理失败。")
+                return False
+            logger.info(f"MsgId={msg_id}: Image preprocessed, new size: {len(processed_image_data)} bytes, format: {image_format}.")
+
+            logger.debug(f"MsgId={msg_id}: Storing image to S3 and getting URL...")
+            image_public_url = await self._save_to_s3_storage(processed_image_data, msg_id, image_format) # 直接调用S3方法
+            if not image_public_url:
+                await self._send_error_message(bot, message, "图片上传到S3失败。")
+                return False
+            logger.info(f"MsgId={msg_id}: Image uploaded to S3. Public URL: {image_public_url}")
+
+            chat_id = f"{sender_wxid}_{self.app_id if self.app_id else 'default'}_image"
+            # 使用配置文件中的image-prompt
+            image_prompt = self.plugin_config.get("image-prompt", "请描述这张图片的主要内容。") #sam修改重点
+
+            messages_payload = [
+                {"role": "user", "content": [
+                    {"type": "text", "text": image_prompt},
+                    {"type": "image_url", "image_url": {"url": image_public_url}}
+                ]}
+            ]
+            logger.info(f"MsgId={msg_id}: Calling FastGPT API for image analysis. ChatId: {chat_id}")
+            result_content, success = await self._call_fastgpt_api(bot, message, messages_payload, chat_id)
+
+            if success:
+                logger.info(f"MsgId={msg_id}: FastGPT API call for image successful.")
+                if is_group:
+                    await bot.send_at_message(from_wxid, f"\n{result_content}", [sender_wxid])
+                else:
+                    await bot.send_text_message(from_wxid, result_content)
+                if self.price > 0: # 扣积分
+                    if not (sender_wxid in self.admins and self.admin_ignore) and \
+                       not (self.db.get_whitelist(sender_wxid) and self.whitelist_ignore):
+                        self.db.add_points(sender_wxid, -self.price)
+                        logger.info(f"MsgId={msg_id}: Deducted {self.price} points from user {sender_wxid}.")
+            else:
+                logger.warning(f"MsgId={msg_id}: FastGPT API call for image failed.")
+            return False
+        except Exception as e:
+            logger.error(f"FastGPT image message handling failed for MsgId={msg_id}: {e}")
+            logger.error(traceback.format_exc())
+            await self._send_error_message(bot, message, "处理图片时发生内部错误。")
+            return False
+
+    async def _extract_image_data_from_message(self, bot: WechatAPIClient, message: dict) -> Optional[bytes]:
+        msg_id = message.get("MsgId", "unknown_msg_id")
+        content = message.get("Content")
+        logger.debug(f"MsgId={msg_id}: Attempting to extract image data. Content type: {type(content)}")
+
+        if isinstance(content, bytes):
+            logger.info(f"MsgId={msg_id}: Content is bytes. Size: {len(content)}")
+            try:
+                Image.open(io.BytesIO(content))
+                return content
+            except Exception as e:
+                logger.warning(f"MsgId={msg_id}: Content is bytes but not a valid image: {e}")
+                return None
+        elif isinstance(content, str):
+            if content.startswith(('/9j/', 'iVBOR', 'R0lGOD')): # Common base64 prefixes
+                logger.info(f"MsgId={msg_id}: Content appears to be base64 encoded.")
+                try:
+                    missing_padding = len(content) % 4
+                    if missing_padding:
+                        content += '=' * (4 - missing_padding)
+                    image_data = base64.b64decode(content)
+                    Image.open(io.BytesIO(image_data))
+                    logger.info(f"MsgId={msg_id}: Base64 decoded. Size: {len(image_data)}")
+                    return image_data
+                except Exception as e:
+                    logger.error(f"MsgId={msg_id}: Failed to decode base64: {e}. Head: {content[:100]}")
+                    return None
+
+            if content.strip().startswith("<msg>"):
+                logger.info(f"MsgId={msg_id}: Content appears to be XML.")
+                try:
+                    import xml.etree.ElementTree as ET
+                    root = ET.fromstring(content)
+                    img_element = root.find('.//img')
+                    if img_element is not None:
+                        data_len_str = img_element.get('hdlength') or img_element.get('length')
+                        if data_len_str and data_len_str.isdigit():
+                            data_len = int(data_len_str)
+                            logger.info(f"MsgId={msg_id}: XML specifies image size: {data_len}. Attempting chunked download.")
+                            full_image_data = bytearray()
+                            chunk_size = 64 * 1024
+                            num_chunks = (data_len + chunk_size - 1) // chunk_size
+                            for i in range(num_chunks):
+                                try:
+                                    chunk_data = await bot.get_msg_image(
+                                        msg_id=msg_id,
+                                        to_wxid=message.get("FromWxid"),
+                                        data_len=data_len,
+                                        start_pos=i * chunk_size
+                                    )
+                                    if chunk_data and len(chunk_data) > 0:
+                                        full_image_data.extend(chunk_data)
+                                        logger.debug(f"MsgId={msg_id}: Chunk {i+1}/{num_chunks} downloaded, size: {len(chunk_data)}")
+                                    else: # 如果一个分块失败，则整个下载失败
+                                        logger.error(f"MsgId={msg_id}: Chunk {i+1}/{num_chunks} download failed or empty.")
+                                        return None
+                                except Exception as chunk_e:
+                                    logger.error(f"MsgId={msg_id}: Error downloading chunk {i+1}/{num_chunks}: {chunk_e}")
+                                    return None
+                            if len(full_image_data) == data_len:
+                                logger.info(f"MsgId={msg_id}: Chunked download successful. Total size: {len(full_image_data)}")
+                                return bytes(full_image_data)
+                            else:
+                                logger.error(f"MsgId={msg_id}: Chunked download size mismatch. Expected {data_len}, got {len(full_image_data)}.")
+                                return None
+                        else:
+                            logger.warning(f"MsgId={msg_id}: No image length (hdlength/length) in XML.")
+                    else:
+                        logger.warning(f"MsgId={msg_id}: No <img> tag in XML.")
+                except ET.ParseError as e:
+                    logger.error(f"MsgId={msg_id}: XML parse error: {e}. XML: {content[:200]}")
+                except Exception as e:
+                    logger.error(f"MsgId={msg_id}: Error processing XML: {e}", exc_info=True)
+        else:
+            logger.warning(f"MsgId={msg_id}: Unhandled content type for image: {type(content)}")
+        return None
+
+    async def _preprocess_image(self, image_data: bytes, msg_id: str) -> Optional[tuple[bytes, str]]:
+        logger.debug(f"MsgId={msg_id}: Starting image preprocessing. Original size: {len(image_data)} bytes.")
+        try:
+            img = Image.open(io.BytesIO(image_data))
+            original_format = (img.format or "unknown").lower()
+            logger.info(f"MsgId={msg_id}: Image opened. Format: {original_format}, Dims: {img.size}")
+
+            target_format = original_format
+            if original_format not in self.allowed_formats:
+                logger.warning(f"MsgId={msg_id}: Format '{original_format}' not allowed. Converting to PNG.")
+                target_format = "png" # 默认转换目标
+                if original_format == 'gif': # 特殊处理GIF
+                    img.seek(0) # 取第一帧
+                    if img.mode == 'P': img = img.convert('RGBA') # 处理调色板
+
+            # 处理透明度，如果目标是JPEG
+            if target_format == "jpeg" and img.mode in ('RGBA', 'LA', 'P'):
+                if img.mode == 'P' and 'transparency' not in img.info: # P模式但无透明度信息
+                    pass # 无需处理
+                else:
+                    logger.info(f"MsgId={msg_id}: Image has alpha/palette transparency, target is JPEG. Converting to RGB.")
+                    try:
+                        if img.mode == 'P': img = img.convert('RGBA') # 先转RGBA
+                        background = Image.new("RGB", img.size, (255, 255, 255))
+                        background.paste(img, mask=img.split()[-1])
+                        img = background
+                    except Exception as alpha_e:
+                        logger.error(f"MsgId={msg_id}: Failed to remove alpha: {alpha_e}")
+                        return None, ""
+
+            if img.width > self.max_width or img.height > self.max_height:
+                logger.info(f"MsgId={msg_id}: Resizing from {img.size} to fit within ({self.max_width}x{self.max_height}).")
+                img.thumbnail((self.max_width, self.max_height), Image.Resampling.LANCZOS)
+                logger.info(f"MsgId={msg_id}: Resized to {img.size}.")
+
+            output_buffer = io.BytesIO()
+            save_params = {}
+            final_export_format_pil = "PNG" # Pillow保存时的格式名，默认为PNG
+            final_export_format_ext = "png" # 文件扩展名
+
+            if target_format in ("jpeg", "jpg"):
+                final_export_format_pil = "JPEG"
+                final_export_format_ext = "jpeg"
+                save_params['quality'] = self.jpeg_quality
+                save_params['optimize'] = True
+            elif target_format == "png":
+                final_export_format_pil = "PNG"
+                final_export_format_ext = "png"
+                save_params['optimize'] = True
+            elif target_format == "webp": # 确保Pillow支持WEBP保存
+                try:
+                    # 测试Pillow是否支持WEBP保存
+                    Image.new('RGB', (1,1)).save(io.BytesIO(), format='WEBP')
+                    final_export_format_pil = "WEBP"
+                    final_export_format_ext = "webp"
+                    save_params['quality'] = 80
+                except Exception:
+                    logger.warning(f"MsgId={msg_id}: Pillow does not support WEBP saving on this system. Falling back to PNG for '{original_format}'.")
+                    final_export_format_pil = "PNG" # Pillow不支持WEBP则回退到PNG
+                    final_export_format_ext = "png"
+                    save_params['optimize'] = True
+            else: # 其他被允许的格式但未特别处理的，或转换后的目标(如PNG)
+                if target_format in self.allowed_formats:
+                     final_export_format_pil = target_format.upper()
+                     final_export_format_ext = target_format
+                     if final_export_format_pil == "JPEG":
+                         save_params['quality'] = self.jpeg_quality
+                         save_params['optimize'] = True
+                # else 默认已经是PNG了
+
+            logger.debug(f"MsgId={msg_id}: Saving to buffer as {final_export_format_pil} with params: {save_params}")
+            img.save(output_buffer, format=final_export_format_pil, **save_params)
+            processed_image_data = output_buffer.getvalue()
+
+            if len(processed_image_data) > self.max_image_size_bytes:
+                logger.warning(f"MsgId={msg_id}: Processed size {len(processed_image_data)}B > max {self.max_image_size_bytes}B.")
+                return None, ""
+
+            logger.info(f"MsgId={msg_id}: Preprocessing done. Size: {len(processed_image_data)}B, Format: {final_export_format_ext}")
+            return processed_image_data, final_export_format_ext
+        except Exception as e:
+            logger.error(f"MsgId={msg_id}: Error during image preprocessing: {e}", exc_info=True)
+            return None, ""
+
+    async def _save_to_s3_storage(self, image_data: bytes, msg_id: str, image_format_ext: str) -> Optional[str]:
+        if not self.s3_config: # s3_config 为 None 表示配置不完整或minio不可用
+            logger.error(f"MsgId={msg_id}: S3 storage selected but S3 is not configured or Minio client unavailable.")
+            return None
+
+        unique_filename = f"{msg_id}_{uuid.uuid4().hex}.{image_format_ext}"
+        logger.debug(f"MsgId={msg_id}: Generated S3 unique filename: {unique_filename}")
+
+        try:
+            client = Minio(
+                endpoint=self.s3_config["endpoint"],
+                access_key=self.s3_config["access_key"],
+                secret_key=self.s3_config["secret_key"],
+                secure=self.s3_config["secure"]
+            )
+            bucket_name = self.s3_config["bucket"]
+            content_type = f"image/{image_format_ext}"
+            image_stream = io.BytesIO(image_data)
+            image_length = len(image_data)
+
+            logger.info(f"MsgId={msg_id}: Uploading to S3. Bucket: {bucket_name}, Filename: {unique_filename}, Size: {image_length}B, ContentType: {content_type}")
+            client.put_object(bucket_name, unique_filename, image_stream, image_length, content_type=content_type)
+            logger.info(f"MsgId={msg_id}: Image uploaded to S3 object: {unique_filename}")
+
+            s3_url_protocol = "https" if self.s3_config["secure"] else "http"
+            s3_endpoint = self.s3_config['endpoint']
+            # 确保 endpoint 不以协议开头，如果已包含，则直接使用
+            if "://" in s3_endpoint:
+                 s3_url = f"{s3_endpoint.rstrip('/')}/{bucket_name}/{unique_filename}"
+            else:
+                 s3_url = f"{s3_url_protocol}://{s3_endpoint}/{bucket_name}/{unique_filename}"
+
+            logger.info(f"MsgId={msg_id}: Constructed S3 URL: {s3_url}")
+
+            if self.s3_enable_local_backup:
+                logger.debug(f"MsgId={msg_id}: S3 local backup enabled. Saving a copy locally.")
+                try:
+                    os.makedirs(self.image_tmp_dir, exist_ok=True)
+                    local_backup_path = os.path.join(self.image_tmp_dir, unique_filename)
+                    with open(local_backup_path, "wb") as f:
+                        f.write(image_data)
+                    logger.info(f"MsgId={msg_id}: Local backup saved to {local_backup_path}")
+                except Exception as e_backup:
+                    logger.error(f"MsgId={msg_id}: Failed to save S3 local backup: {e_backup}")
+            return s3_url
+        except S3Error as s3e:
+            logger.error(f"MsgId={msg_id}: S3 operation failed: {s3e}", exc_info=True)
+        except Exception as e:
+            logger.error(f"MsgId={msg_id}: Failed to upload to S3 or construct URL: {e}", exc_info=True)
+        return None
+
+    async def _call_fastgpt_api(self, bot: WechatAPIClient, message: dict, messages_payload: list, chat_id: str) -> tuple[Optional[str], bool]:
+        request_data = {"chatId": chat_id, "stream": False, "detail": self.detail, "messages": messages_payload}
+        headers = {"Authorization": f"Bearer {self.api_key}", "Content-Type": "application/json"}
+        proxy = self.http_proxy if self.http_proxy else None
+        api_url = f"{self.base_url.rstrip('/')}/v1/chat/completions"
+
+        logger.debug(f"Calling FastGPT API. URL: {api_url}, ChatId: {chat_id}, Detail: {self.detail}")
+        logger.trace(f"FastGPT Request: {json.dumps(request_data, ensure_ascii=False)}")
+
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.post(api_url, headers=headers, json=request_data, proxy=proxy, timeout=aiohttp.ClientTimeout(total=60)) as response:
+                    response_text = await response.text() # 获取原始响应文本以供调试
+                    logger.debug(f"FastGPT API Status: {response.status}")
+                    logger.trace(f"FastGPT API Raw Response (first 500 chars): {response_text[:500]}")
+
+                    if response.status != 200:
+                        err_detail = response_text
+                        try: err_detail = json.loads(response_text).get("message", response_text)
+                        except json.JSONDecodeError: pass
+                        logger.error(f"FastGPT API call failed. Status: {response.status}, Detail: {err_detail}")
+                        await self._send_error_message(bot, message, f"FastGPT服务错误 ({response.status}): {err_detail[:200]}")
+                        return None, False
+
+                    resp_json = json.loads(response_text)
+                    content = None
+                    if resp_json.get("choices") and resp_json["choices"][0].get("message"):
+                        content = resp_json["choices"][0]["message"].get("content")
+                    elif self.detail and resp_json.get("responseData"): # 尝试从responseData提取
+                        if isinstance(resp_json["responseData"], list):
+                            for item in resp_json["responseData"]:
+                                if item.get("moduleType") == "text" and item.get("text", {}).get("content"):
+                                    content = item["text"]["content"]
+                                    break
+                                if item.get("moduleType") == "pluginOutput" and item.get("pluginOutput", {}).get("result"):
+                                    content = str(item["pluginOutput"]["result"])
+                                    break
+                        if content is None and resp_json.get("text"): # 兜底
+                            content = resp_json.get("text")
+
+                    if content is None:
+                        logger.error(f"FastGPT: Could not extract content from response: {resp_json}")
+                        await self._send_error_message(bot, message, "FastGPT响应格式错误。")
+                        return None, False
+                    logger.info(f"FastGPT API extracted content: '{str(content)[:100]}...'")
+                    return str(content), True
+        except aiohttp.ClientError as e:
+            logger.error(f"FastGPT API network error: {e}", exc_info=True)
+            await self._send_error_message(bot, message, f"连接FastGPT服务失败: {type(e).__name__}")
+        except json.JSONDecodeError as e:
+            logger.error(f"FastGPT API JSON decode error: {e}. Response: {response_text[:500]}", exc_info=True) # 包含response_text
+            await self._send_error_message(bot, message, "FastGPT响应JSON解析失败。")
+        except Exception as e:
+            logger.error(f"FastGPT API call unexpected error: {e}", exc_info=True)
+            await self._send_error_message(bot, message, f"调用FastGPT时发生未知错误: {type(e).__name__}")
+        return None, False
+
+    async def _send_error_message(self, bot: WechatAPIClient, message: dict, error_text: str):
+        is_group = message.get("IsGroup", False)
+        sender_wxid = message.get("SenderWxid")
+        from_wxid = message.get("FromWxid")
+        logger.warning(f"Sending error to user {sender_wxid} (in {from_wxid if is_group else 'private'}): {error_text}")
+        full_error_msg = f"抱歉，操作失败：{error_text}"
+        if is_group:
+            await bot.send_at_message(from_wxid, f"\n{full_error_msg}", [sender_wxid])
+        else:
+            await bot.send_text_message(from_wxid, full_error_msg)
+
+    async def _check_point(self, bot: WechatAPIClient, message: dict) -> bool:
+        wxid = message.get("SenderWxid")
+        if self.price <= 0: return True
+        if (wxid in self.admins and self.admin_ignore) or \
+           (self.db.get_whitelist(wxid) and self.whitelist_ignore):
+            logger.debug(f"User {wxid} exempt from point check.")
+            return True
+        user_points = self.db.get_points(wxid)
+        if user_points < self.price:
+            error_msg = f"您的积分不足，需{self.price}分，当前{user_points}分。"
+            await self._send_error_message(bot, message, error_msg) # 使用统一错误发送
+            return False
+        return True
+
+    def _check_and_install_dependencies(self):
+        logger.info("Checking and installing dependencies for FastGPT plugin...")
+        pip_command_available = [True] # 使用列表以便在嵌套函数中修改其状态
+        global minio_available  # 将global声明移到方法开头
+
+        def _install_with_pip(package_import_name: str, package_pip_name: str, requirement_str: Optional[str] = None) -> bool:
+            if not pip_command_available[0]:
+                logger.warning(f"pip command not available, skipping installation of {package_pip_name}.")
+                return False
+            try:
+                __import__(package_import_name)
+                logger.debug(f"Dependency '{package_import_name}' is already installed.")
+                return True
+            except ImportError:
+                install_target = requirement_str if requirement_str else package_pip_name
+                logger.info(f"Attempting to install '{install_target}' via pip...")
+                try:
+                    subprocess.check_call([sys.executable, "-m", "pip", "install", install_target],
+                                          stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT) # 静默安装
+                    logger.success(f"Successfully installed '{install_target}'.")
+                    __import__(package_import_name) # 验证导入
+                    return True
+                except subprocess.CalledProcessError as e:
+                    logger.error(f"Failed to install '{install_target}' via pip: {e}")
+                except ImportError:
+                    logger.error(f"Installed '{install_target}' but still cannot import '{package_import_name}'.")
+                except FileNotFoundError: # pip 命令本身找不到
+                    logger.error("pip command not found. Cannot install dependencies.")
+                    pip_command_available[0] = False
+            return False
+
+        # 1. 处理 requirements.txt (如果存在)
+        requirements_path = os.path.join(os.path.dirname(__file__), "requirements.txt")
+        if os.path.exists(requirements_path):
+            logger.info(f"Processing requirements.txt from {requirements_path}")
+            try:
+                with open(requirements_path, 'r') as f:
+                    requirements = [line.strip() for line in f if line.strip() and not line.startswith('#')]
+                if requirements:
+                    if pip_command_available[0]:
+                        logger.info(f"Installing dependencies from requirements.txt: {requirements}")
+                        try:
+                            subprocess.check_call([sys.executable, "-m", "pip", "install", *requirements],
+                                                  stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+                            logger.success("Successfully installed dependencies from requirements.txt.")
+                            # 验证 Minio (如果它在requirements.txt中)
+                            if any("minio" in req.lower() for req in requirements):
+                                global minio_available
+                                try: __import__("minio"); minio_available = True
+                                except ImportError: minio_available = False
+                        except subprocess.CalledProcessError as e:
+                            logger.error(f"Failed to install from requirements.txt: {e}")
+                        except FileNotFoundError:
+                            logger.error("pip command not found. Cannot install from requirements.txt.")
+                            pip_command_available[0] = False
+                    else:
+                        logger.warning("pip not available, skipping installation from requirements.txt.")
+            except Exception as e_req:
+                logger.error(f"Error processing requirements.txt: {e_req}")
+        else:
+            logger.warning("requirements.txt not found. Will attempt manual checks for core dependencies.")
+
+        # 2. 手动检查/安装核心依赖 (如果 requirements.txt 未处理或失败)
+        _install_with_pip("PIL", "Pillow", "Pillow>=9.0.0")
+
+        # tomli (仅当标准库 tomllib 不可用时)
+        if tomllib is None: # 意味着标准库的 tomllib 导入失败
+            if not _install_with_pip("tomli", "tomli", "tomli>=1.1.0"):
+                logger.warning("'tomli' fallback could not be installed. TOML parsing might fail if not already available.")
+            # 在 __init__ 开头会再次尝试导入并更新全局 tomllib
+
+        # Minio (如果 S3 被配置使用)
+        if not minio_available:  # 现在可以安全使用minio_available
+            if _install_with_pip("minio", "minio", "minio>=7.0.0"):
+                minio_available = True
+            else:
+                logger.warning("Minio could not be installed. S3 functionality will be unavailable.")
+                minio_available = False # 保持False
+
+        logger.info("Dependency check/installation process finished.")
+
+
+    async def _cleanup_expired_images(self):
+        if not os.path.exists(self.image_tmp_dir):
+            logger.warning(f"Image temp directory {self.image_tmp_dir} does not exist. Cleanup task will not run.")
+            return
+
+        logger.info(f"Starting periodic cleanup for images in {self.image_tmp_dir}. Interval: {self.cleanup_interval}s, Expire: {self.image_expire_time}s.")
+        while True:
+            await asyncio.sleep(self.cleanup_interval)
+            try:
+                current_time = time.time()
+                cleaned_count = 0
+                logger.debug(f"Running image cleanup at {time.strftime('%Y-%m-%d %H:%M:%S')}")
+                for filename in os.listdir(self.image_tmp_dir):
+                    file_path = os.path.join(self.image_tmp_dir, filename)
+                    try:
+                        if os.path.isfile(file_path):
+                            if current_time - os.path.getmtime(file_path) > self.image_expire_time:
+                                os.remove(file_path)
+                                cleaned_count += 1
+                                logger.debug(f"Cleaned expired image: {file_path}")
+                    except Exception as e_file:
+                        logger.error(f"Error processing {file_path} during cleanup: {e_file}")
+                if cleaned_count > 0: logger.info(f"Image cleanup: Cleaned {cleaned_count} images.")
+                else: logger.debug("Image cleanup: No images cleaned.")
+            except Exception as e_task:
+                logger.error(f"Image cleanup task error: {e_task}", exc_info=True)
+                await asyncio.sleep(self.cleanup_interval / 2) # 错误后稍作等待
+
+    async def _extract_image_urls(self, text: str) -> List[str]: # 未使用，保留
+        image_urls = []
+        try:
+            url_pattern = r'https?://\S+\.(?:jpg|jpeg|png|gif|webp)\b'
+            image_urls = re.findall(url_pattern, text, re.IGNORECASE)
+        except Exception as e: logger.error(f"Error extracting image URLs: {e}", exc_info=True)
+        if image_urls: logger.info(f"Extracted {len(image_urls)} image URLs: {image_urls}")
+        return image_urls

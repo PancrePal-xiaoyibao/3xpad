@@ -1,0 +1,10 @@
+[ChatSummary.Dify]
+enable = true              # 是否启用 Dify 集成
+api-key = "app-9hiqqQIi8bZfvmaFc56WPyYH"   # 你的 Dify API 密钥
+base-url = "http://192.168.6.19:8080/v1"  # 你的 Dify API Base URL
+http-proxy = ""               # HTTP 代理服务器地址 (可选)，如 "http://127.0.0.1:7890" or leave blank
+[ChatSummary]
+enable = true
+commands = ["$总结", "$总结一下"]
+default_num_messages = 100
+summary_wait_time = 60

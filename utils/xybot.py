@@ -508,6 +508,49 @@ class XYBot:
         """处理文本消息"""
         message["Content"] = message.get("Content", {}).get("string", "")
 
+        # ====== TVS 指令优先处理（无论单聊/群聊） ======
+        content = message["Content"].strip()
+        from_wxid = message["FromWxid"]
+        sender_wxid = message.get("SenderWxid", from_wxid)
+        is_group = message.get("IsGroup", False)
+        chat_id = from_wxid
+        sender = sender_wxid
+        # 兼容单聊
+        if not is_group:
+            sender = from_wxid
+            chat_id = from_wxid
+        try:
+            from plugins.TVSSpider.main import TVSSpider
+            # 单例/全局缓存
+            if not hasattr(self, "_tvs_spider"):
+                self._tvs_spider = TVSSpider()
+                await self._tvs_spider.async_init()
+            tvs_spider = self._tvs_spider
+            # 只要以TVS或TVS#开头就拦截
+            if content.startswith("TVS#") or content.startswith("TVS #"):
+                # 详情
+                fake_msg = {
+                    "Content": content,
+                    "FromWxid": chat_id,
+                    "SenderWxid": sender,
+                    "IsGroup": is_group
+                }
+                await tvs_spider.handle_text(self.bot, fake_msg)
+                return  # 不再分发
+            elif content.startswith("TVS") or content.startswith("TVS "):
+                # 搜索
+                fake_msg = {
+                    "Content": content,
+                    "FromWxid": chat_id,
+                    "SenderWxid": sender,
+                    "IsGroup": is_group
+                }
+                await tvs_spider.handle_text(self.bot, fake_msg)
+                return  # 不再分发
+        except Exception as e:
+            logger.error(f"[主程序TVS直通] 处理TVS指令异常: {e}")
+        # ====== TVS 指令优先处理 END ======
+
         if message["FromWxid"].endswith("@chatroom"):  # 群聊消息
             message["IsGroup"] = True
             split_content = message["Content"].split(":\n", 1)
@@ -1164,8 +1207,6 @@ class XYBot:
            (FromWxid and isinstance(FromWxid, str) and ('service' in FromWxid.lower() or 'official' in FromWxid.lower())):
             logger.debug(f"忽略官方服务账号消息: {SenderWxid or FromWxid}")
             return False
-
-
 
         # 先检查是否是群聊消息
         is_group = FromWxid and isinstance(FromWxid, str) and FromWxid.endswith("@chatroom")

@@ -21,6 +21,8 @@ class ToolExtensionMixin(WechatAPIClientBase):
             UserLoggedOut: 未登录时调用
             根据error_handler处理错误
         """
+        logger.debug(f"ToolExtension: get_msg_image called with msg_id={msg_id}, to_wxid={to_wxid}, data_len={data_len}, start_pos={start_pos}") # <--- 添加日志
+        
         if not self.wxid:
             raise UserLoggedOut("请先登录")
 
