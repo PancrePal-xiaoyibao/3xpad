@@ -1,2 +1,5 @@
 [submodule "plugins/FastGPT"]
 	url = git@github.com:PancrePal-xiaoyibao/3xpad.git
+[submodule "plugins/GetWeather"]
+	url = git@github.com:PancrePal-xiaoyibao/xxxbot-GetWeather.git
+	path = plugins/GetWeather
